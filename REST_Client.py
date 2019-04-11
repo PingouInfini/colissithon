@@ -16,9 +16,10 @@ biographics_url = SERVEUR_URL + "/api/biographics/"
 rawdata_url = SERVEUR_URL + "/api/raw-data"
 relation_url = SERVEUR_URL + "/api/graph/relation"
 
-# prenom = sys.argv[1]
-# nom = sys.argv[2]
-# image = sys.argv[3]
+
+prenom = sys.argv[1]
+nom = sys.argv[2]
+image = sys.argv[3]
 
 
 def authentificate():
@@ -83,7 +84,7 @@ def create_biographics(biographics, session, header_with_token):
     return post_data_to_insight(bio, session, header_with_token, biographics_url)
 
 
-def create_rawDatas(rawData, session, header_with_token, biographics_id):
+def send_rawDatas(rawData, session, header_with_token, biographics_id):
     data = {
         "rawDataName": rawData.rawDataName,
     }
@@ -100,12 +101,8 @@ def create_rawDatas(rawData, session, header_with_token, biographics_id):
         data.update({"rawDataSourceUri": rawData.rawDataSourceUri})
 
     if not (rawData.rawDataData is None):
-        with open(rawData.rawDataData, "rb") as image:
-            f = image.read()
-            b = bytearray(f)
-            decode = base64.b64encode(b).decode('UTF-8')
-            data.update({"rawDataData": decode,
-                         "rawDataDataContentType": rawData.rawDataDataContentType})
+        data.update({"rawDataData": rawData.rawDataData,
+                     "rawDataDataContentType": rawData.rawDataDataContentType})
 
     target_id = post_data_to_insight(rawData, session, header_with_token, rawdata_url)
     bind_biographics_to_rawdata(biographics_id, target_id, session, header_with_token)
@@ -126,28 +123,52 @@ def post_data_to_insight(data, session, header, target_url):
     else:
         print("ERROR during request to " + str(target_url) + " ---- RESPONSE IS :  " + str(postResponse))
 
+
 def close_connection():
     exit(0)
 
-def rawdatas_from_tweet(json_file, biographics_id) :
+
+def rawdatas_from_tweet(json_path, biographics_id):
     # 1- transform tweet into rawData (condition for presence of picture(s))
+    try:
+        with open(json_path) as json_file:
+            rawdata_from_tweet = raw_data()
+            json_datas = json.load(json_file)
+            rawdata_from_tweet.rawDataName = json_datas['name'] + json_datas['created_at']
+            rawdata_from_tweet.rawDataSourceUri = json_datas['source']
+            rawdata_from_tweet.rawDataSourceType = "TWITTER"
+            if not (json_datas['coordinates'] is None) :
+                rawdata_from_tweet.rawDataCoordinates = json_datas['coordinates']
+            rawdata_from_tweet.rawDataContent = json_datas['text']
+            if not (json_datas['entities']['media'] is None) :
+                #index = 0
+                #for media in json_datas['entities']['media']:
+                    #index += 1
+                media = json_datas['entities']['media'][0]
+                r = requests.get(media['media_url'], allow_redirects=True)
+
+                #image = r.content
+                #todo: a bytifier + extension + ajout raw data
+
+        #datadata/contenttype
+
 
     # 2- call createRawDatas
     return
+
 
 if __name__ == '__main__':
     # Détection de l'extension du fichier image et génération de l'objet biographics
     file_type_point = "image/" + Path(image).suffix
     file_type = (file_type_point.replace(".", ""))
     # file_type_point = "image/" + (Path(image).suffix).replace(".", "")
+    bio = biographics(prenom, nom, image, file_type)
 
-    # bio = biographics(prenom, nom, image, file_type)
-    rawdata_test = raw_data("RAWWDATA-TEST", "/samples/Magloire.jpg", "", "", "", "", "", "")
     # Authentification et récupération session authentifiée + header avec le token de sécurité
     current_session, current_header = authentificate()
 
     # Envoi de la Biographics, et récupération de son External ID
-    # bio_id = create_biographics(bio, current_session, current_header)
+    bio_id = create_biographics(bio, current_session, current_header)
 
     print(str(file_type))
 
