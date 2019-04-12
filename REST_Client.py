@@ -17,9 +17,9 @@ rawdata_url = SERVEUR_URL + "/api/raw-data"
 relation_url = SERVEUR_URL + "/api/graph/relation"
 
 
-prenom = sys.argv[1]
-nom = sys.argv[2]
-image = sys.argv[3]
+# prenom = sys.argv[1]
+# nom = sys.argv[2]
+# image = sys.argv[3]
 
 
 def authentificate():
@@ -104,12 +104,17 @@ def send_rawDatas(rawData, session, header_with_token, biographics_id):
         data.update({"rawDataData": rawData.rawDataData,
                      "rawDataDataContentType": rawData.rawDataDataContentType})
 
-    target_id = post_data_to_insight(rawData, session, header_with_token, rawdata_url)
+    target_id = post_data_to_insight(data, session, header_with_token, rawdata_url)
     bind_biographics_to_rawdata(biographics_id, target_id, session, header_with_token)
 
 
 def bind_biographics_to_rawdata(biographics_external_id, rawData_external_id, session, header):
-    link = relation_bio_data(biographics_external_id, rawData_external_id, "Related to", "Biographics", "RawData")
+    link ={ "idJanusSource" :  biographics_external_id,
+            "idJanusCible" : rawData_external_id,
+            "name" : "Related to",
+            "typeSource" : "Biographics",
+            "typeCible" : "RawData"}
+
     post_data_to_insight(link, session, header, relation_url)
 
 
@@ -128,7 +133,7 @@ def close_connection():
     exit(0)
 
 
-def rawdatas_from_tweet(json_path, biographics_id):
+def rawdatas_from_tweet(json_path, session, header, biographics_id):
     # 1- transform tweet into rawData (condition for presence of picture(s))
     try:
         with open(json_path) as json_file:
@@ -146,31 +151,36 @@ def rawdatas_from_tweet(json_path, biographics_id):
                     #index += 1
                 media = json_datas['entities']['media'][0]
                 r = requests.get(media['media_url'], allow_redirects=True)
-
+                f = r.read()
+                b = bytearray(f)
+                decode = base64.b64encode(b).decode('UTF-8')
+                rawdata_from_tweet.rawDataData = str(decode)
+                rawdata_from_tweet.rawDataDataContentType = "image/jpg"
                 #image = r.content
                 #todo: a bytifier + extension + ajout raw data
 
-        #datadata/contenttype
+        send_rawDatas(rawdata_from_tweet, session, header, biographics_id)
 
-
-    # 2- call createRawDatas
-    return
+    except:
+        raise ValueError ("PROBLEM DURING TWEET DATA'S EXTRACTION")
 
 
 if __name__ == '__main__':
     # Détection de l'extension du fichier image et génération de l'objet biographics
-    file_type_point = "image/" + Path(image).suffix
-    file_type = (file_type_point.replace(".", ""))
+    #file_type_point = "image/" + Path(image).suffix
+    #file_type = (file_type_point.replace(".", ""))
     # file_type_point = "image/" + (Path(image).suffix).replace(".", "")
-    bio = biographics(prenom, nom, image, file_type)
-
+    #bio = biographics(prenom, nom, image, file_type)
+    rawdatatest = raw_data("Prenom", None, None, None, "THIS IS THE CONTENT TEXT", "Source TEST", None)
     # Authentification et récupération session authentifiée + header avec le token de sécurité
     current_session, current_header = authentificate()
 
     # Envoi de la Biographics, et récupération de son External ID
-    bio_id = create_biographics(bio, current_session, current_header)
+    #bio_id = create_biographics(bio, current_session, current_header)
 
-    print(str(file_type))
+    send_rawDatas(rawdatatest, current_session, current_header, "5caf0623828d2838988fb174")
+
+    #print(str(file_type))
 
     # Envoi de la Rawdata et récupération de son External ID
 
