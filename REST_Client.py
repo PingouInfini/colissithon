@@ -137,27 +137,34 @@ def rawdatas_from_tweet(json_path, session, header, biographics_id):
     # 1- transform tweet into rawData (condition for presence of picture(s))
     try:
         with open(json_path) as json_file:
-            rawdata_from_tweet = raw_data()
-            json_datas = json.load(json_file)
-            rawdata_from_tweet.rawDataName = json_datas['name'] + json_datas['created_at']
-            rawdata_from_tweet.rawDataSourceUri = json_datas['source']
+            rawdata_from_tweet = raw_data(None,None,None,None,None,None,None)
+            json_data = json.load(json_file)
+            rawdata_from_tweet.rawDataName = json_data['user']['name'] + " " + json_data['created_at']
+            if (json_data == 'source'):
+                rawdata_from_tweet.rawDataSourceUri = str(json_data['source'])
+                print("4     " + str(json_data['source']))
             rawdata_from_tweet.rawDataSourceType = "TWITTER"
-            if not (json_datas['coordinates'] is None) :
-                rawdata_from_tweet.rawDataCoordinates = json_datas['coordinates']
-            rawdata_from_tweet.rawDataContent = json_datas['text']
-            if not (json_datas['entities']['media'] is None) :
-                #index = 0
-                #for media in json_datas['entities']['media']:
-                    #index += 1
-                media = json_datas['entities']['media'][0]
-                r = requests.get(media['media_url'], allow_redirects=True)
-                f = r.read()
-                b = bytearray(f)
-                decode = base64.b64encode(b).decode('UTF-8')
-                rawdata_from_tweet.rawDataData = str(decode)
-                rawdata_from_tweet.rawDataDataContentType = "image/jpg"
-                #image = r.content
-                #todo: a bytifier + extension + ajout raw data
+            print("5")
+            if not (json_data !=('coordinates')) & (str(json_data['coordinates']) == ''):
+                rawdata_from_tweet.rawDataCoordinates = str(json_data['coordinates'])
+                print("6    " + str(json_data['coordinates']))
+            if (json_data == 'source'):
+                rawdata_from_tweet.rawDataContent = str(json_data['text'])
+                print("7    " + str(json_data['text']))
+            # if not (json_datas['entities']['media'] is None) :
+            #     #index = 0
+            #     #for media in json_datas['entities']['media']:
+            #         #index += 1
+            #     media = json_datas['entities']['media'][0]
+            #     r = requests.get(media['media_url'], allow_redirects=True)
+            #     f = r.read()
+            #     b = bytearray(f)
+            #     decode = base64.b64encode(b).decode('UTF-8')
+            #     rawdata_from_tweet.rawDataData = str(decode)
+            #     rawdata_from_tweet.rawDataDataContentType = "image/jpg"
+            #     #image = r.content
+            #     #todo: a bytifier + extension + ajout raw data
+                  #todo: trouver comment vérifier l'existence d'une donnée si non obligatoire
 
         send_rawDatas(rawdata_from_tweet, session, header, biographics_id)
 
@@ -171,15 +178,15 @@ if __name__ == '__main__':
     #file_type = (file_type_point.replace(".", ""))
     # file_type_point = "image/" + (Path(image).suffix).replace(".", "")
     #bio = biographics(prenom, nom, image, file_type)
-    rawdatatest = raw_data("Prenom", None, None, None, "THIS IS THE CONTENT TEXT", "Source TEST", None)
+    #rawdatatest = raw_data("Prenom", None, None, None, "THIS IS THE CONTENT TEXT", "Source TEST", None)
     # Authentification et récupération session authentifiée + header avec le token de sécurité
     current_session, current_header = authentificate()
 
     # Envoi de la Biographics, et récupération de son External ID
     #bio_id = create_biographics(bio, current_session, current_header)
 
-    send_rawDatas(rawdatatest, current_session, current_header, "5caf0623828d2838988fb174")
-
+    #send_rawDatas(rawdatatest, current_session, current_header, "5caf0623828d2838988fb174")
+    rawdatas_from_tweet("C:/Workspace/colissithon/samples/json/1093211639300743169.json", current_session, current_header, "12344555555")
     #print(str(file_type))
 
     # Envoi de la Rawdata et récupération de son External ID
