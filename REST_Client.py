@@ -105,6 +105,7 @@ def send_rawDatas(rawData, session, header_with_token, biographics_id):
                      "rawDataDataContentType": rawData.rawDataDataContentType})
 
     target_id = post_data_to_insight(data, session, header_with_token, rawdata_url)
+    print (target_id)
     bind_biographics_to_rawdata(biographics_id, target_id, session, header_with_token)
 
 
@@ -140,32 +141,34 @@ def rawdatas_from_tweet(json_path, session, header, biographics_id):
             rawdata_from_tweet = raw_data(None,None,None,None,None,None,None)
             json_data = json.load(json_file)
             rawdata_from_tweet.rawDataName = json_data['user']['name'] + " " + json_data['created_at']
-            if (json_data == 'source'):
-                rawdata_from_tweet.rawDataSourceUri = str(json_data['source'])
-                print("4     " + str(json_data['source']))
+            print ("USER :  "  + rawdata_from_tweet.rawDataName)
+            rawdata_from_tweet.rawDataSourceUri = str(json_data['source'])
+            print("SOURCE   " + str(json_data['source']))
             rawdata_from_tweet.rawDataSourceType = "TWITTER"
-            print("5")
-            if not (json_data !=('coordinates')) & (str(json_data['coordinates']) == ''):
+            try :
                 rawdata_from_tweet.rawDataCoordinates = str(json_data['coordinates'])
                 print("6    " + str(json_data['coordinates']))
-            if (json_data == 'source'):
+            except:
+                pass
+            try :
                 rawdata_from_tweet.rawDataContent = str(json_data['text'])
                 print("7    " + str(json_data['text']))
-            # if not (json_datas['entities']['media'] is None) :
-            #     #index = 0
-            #     #for media in json_datas['entities']['media']:
-            #         #index += 1
-            #     media = json_datas['entities']['media'][0]
-            #     r = requests.get(media['media_url'], allow_redirects=True)
-            #     f = r.read()
-            #     b = bytearray(f)
-            #     decode = base64.b64encode(b).decode('UTF-8')
-            #     rawdata_from_tweet.rawDataData = str(decode)
-            #     rawdata_from_tweet.rawDataDataContentType = "image/jpg"
-            #     #image = r.content
-            #     #todo: a bytifier + extension + ajout raw data
-                  #todo: trouver comment vérifier l'existence d'une donnée si non obligatoire
-
+            except:
+                pass
+            try:
+                index = 0
+                first_media = json_data['entities']['media'][0]
+                print(first_media['media_url'])
+                r = requests.get(first_media['media_url'], allow_redirects=True)
+                if (first_media['type'] == "photo"):
+                    print("ENTER ZE MEDIA LOL")
+                    rawdata_from_tweet.rawDataDataContentType = "image/jpg"
+                    decode = base64.b64encode(r.content).decode('UTF-8')
+                    rawdata_from_tweet.rawDataData = str(decode)
+                    print(decode)
+            except:
+                pass
+        print ("###### SREVICE POSTAL")
         send_rawDatas(rawdata_from_tweet, session, header, biographics_id)
 
     except:
