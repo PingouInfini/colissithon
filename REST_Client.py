@@ -105,16 +105,16 @@ def send_rawDatas(rawData, session, header_with_token, biographics_id):
                      "rawDataDataContentType": rawData.rawDataDataContentType})
 
     target_id = post_data_to_insight(data, session, header_with_token, rawdata_url)
-    print (target_id)
+    print(target_id)
     bind_biographics_to_rawdata(biographics_id, target_id, session, header_with_token)
 
 
 def bind_biographics_to_rawdata(biographics_external_id, rawData_external_id, session, header):
-    link ={ "idJanusSource" :  biographics_external_id,
-            "idJanusCible" : rawData_external_id,
-            "name" : "Related to",
-            "typeSource" : "Biographics",
-            "typeCible" : "RawData"}
+    link = {"idJanusSource": biographics_external_id,
+            "idJanusCible": rawData_external_id,
+            "name": "Related to",
+            "typeSource": "Biographics",
+            "typeCible": "RawData"}
 
     post_data_to_insight(link, session, header, relation_url)
 
@@ -130,27 +130,28 @@ def post_data_to_insight(data, session, header, target_url):
         print("ERROR during request to " + str(target_url) + " ---- RESPONSE IS :  " + str(postResponse))
 
 
-def close_connection():
-    exit(0)
+def close_connection(current_session):
+    current_session.close()
+    # exit(0)
 
 
 def rawdatas_from_tweet(json_path, session, header, biographics_id):
     # 1- transform tweet into rawData (condition for presence of picture(s))
     try:
         with open(json_path) as json_file:
-            rawdata_from_tweet = raw_data(None,None,None,None,None,None,None)
+            rawdata_from_tweet = raw_data(None, None, None, None, None, None, None)
             json_data = json.load(json_file)
             rawdata_from_tweet.rawDataName = json_data['user']['name'] + " " + json_data['created_at']
-            print ("USER :  "  + rawdata_from_tweet.rawDataName)
+            print("USER :  " + rawdata_from_tweet.rawDataName)
             rawdata_from_tweet.rawDataSourceUri = str(json_data['source'])
             print("SOURCE   " + str(json_data['source']))
             rawdata_from_tweet.rawDataSourceType = "TWITTER"
-            try :
+            try:
                 rawdata_from_tweet.rawDataCoordinates = str(json_data['coordinates'])
                 print("6    " + str(json_data['coordinates']))
             except:
                 pass
-            try :
+            try:
                 rawdata_from_tweet.rawDataContent = str(json_data['text'])
                 print("7    " + str(json_data['text']))
             except:
@@ -172,29 +173,35 @@ def rawdatas_from_tweet(json_path, session, header, biographics_id):
         send_rawDatas(rawdata_from_tweet, session, header, biographics_id)
 
     except:
-        raise ValueError ("PROBLEM DURING TWEET DATA'S EXTRACTION")
+        raise ValueError("PROBLEM DURING TWEET DATA'S EXTRACTION")
+
+
+def rawdata_from_ggimage():
+    print('TODO ')
 
 
 if __name__ == '__main__':
     # Détection de l'extension du fichier image et génération de l'objet biographics
-    #file_type_point = "image/" + Path(image).suffix
-    #file_type = (file_type_point.replace(".", ""))
+    # file_type_point = "image/" + Path(image).suffix
+    # file_type = (file_type_point.replace(".", ""))
     # file_type_point = "image/" + (Path(image).suffix).replace(".", "")
-    #bio = biographics(prenom, nom, image, file_type)
-    #rawdatatest = raw_data("Prenom", None, None, None, "THIS IS THE CONTENT TEXT", "Source TEST", None)
+    # bio = biographics(prenom, nom, image, file_type)
+    # rawdatatest = raw_data("Prenom", None, None, None, "THIS IS THE CONTENT TEXT", "Source TEST", None)
     # Authentification et récupération session authentifiée + header avec le token de sécurité
+
+
     current_session, current_header = authentificate()
 
     # Envoi de la Biographics, et récupération de son External ID
     #bio_id = create_biographics(bio, current_session, current_header)
 
-    #send_rawDatas(rawdatatest, current_session, current_header, "5caf0623828d2838988fb174")
-    rawdatas_from_tweet("./samples/json/1093211639300743169.json", current_session, current_header, "12344555555")
-    #print(str(file_type))
+
+    # send_rawDatas(rawdatatest, current_session, current_header, "5caf0623828d2838988fb174")
+    rawdatas_from_tweet("./samples/json/1093610212983013376.json", current_session, current_header, "12344555555")
+    # print(str(file_type))
 
     # Envoi de la Rawdata et récupération de son External ID
 
     # Envoi de l'InsightGraphRelation (relation Biographics-RawData)
 
-
-    close_connection()
+    close_connection(current_session)
