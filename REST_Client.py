@@ -2,12 +2,16 @@ import base64
 import json
 import sys
 from pathlib import Path
-
+import time
 import requests
+import os
+
+from geopy import geocoders
 
 # -*- coding: UTF-8 -*-
 from items import biographics, relation_bio_data, raw_data
 
+# SERVEUR_URL = "http://172.20.0.8:8080"
 SERVEUR_URL = "http://localhost:8080"
 
 authentication_url = SERVEUR_URL + "/api/authentication"
@@ -17,10 +21,7 @@ rawdata_url = SERVEUR_URL + "/api/raw-data"
 relation_url = SERVEUR_URL + "/api/graph/relation"
 
 
-# prenom = sys.argv[1]
-# nom = sys.argv[2]
-# image = sys.argv[3]
-
+resolved_locations = {}
 
 def authentificate():
     try:
@@ -81,7 +82,13 @@ def create_biographics(biographics, session, header_with_token):
         "biographicsImage": str(decode)
     }
 
-    return post_data_to_insight(bio, session, header_with_token, biographics_url)
+    post_response = post_data_to_insight(bio, session, header_with_token, biographics_url)
+    if post_response.status_code == 201:
+        data = json.loads(post_response.content)
+        target_ID = data["externalId"]
+        print("SUCCESSFUL REQUEST :  " + str(post_response))
+        print("RETURNED TARGET ID OF BIOGRAPHICS IS :" + str(target_ID))
+        return target_ID
 
 
 def send_rawDatas(rawData, session, header_with_token, biographics_id):
@@ -104,9 +111,18 @@ def send_rawDatas(rawData, session, header_with_token, biographics_id):
         data.update({"rawDataData": rawData.rawDataData,
                      "rawDataDataContentType": rawData.rawDataDataContentType})
 
-    target_id = post_data_to_insight(data, session, header_with_token, rawdata_url)
-    print(target_id)
-    bind_biographics_to_rawdata(biographics_id, target_id, session, header_with_token)
+    if not (rawData.rawDataCreationDate is None):
+        data.update({"rawDataCreationDate": rawData.rawDataCreationDate})
+
+    post_response = post_data_to_insight(data, session, header_with_token, rawdata_url)
+
+    if post_response.status_code == 201:
+        data = json.loads(post_response.content)
+        target_ID = data["externalId"]
+        print("SUCCESSFUL REQUEST :  " + str(post_response))
+        print("RETURNED TARGET ID OF RAWDATA IS :" + str(target_ID))
+        bind_biographics_to_rawdata(biographics_id, target_ID, session, header_with_token)
+        return target_ID
 
 
 def bind_biographics_to_rawdata(biographics_external_id, rawData_external_id, session, header):
@@ -116,18 +132,14 @@ def bind_biographics_to_rawdata(biographics_external_id, rawData_external_id, se
             "typeSource": "Biographics",
             "typeCible": "RawData"}
 
-    post_data_to_insight(link, session, header, relation_url)
+    post_response = post_data_to_insight(link, session, header, relation_url)
+    if post_response.status_code == 201:
+        print("Biographics et Rawdata liés")
 
 
 def post_data_to_insight(data, session, header, target_url):
-    postResponse = session.post(url=target_url, json=data, headers=header)
-    if postResponse.status_code == 201:
-        data = json.loads(postResponse.content)
-        target_id = data["id"]
-        print("SUCCESSFUL REQUEST :  " + str(postResponse))
-        return target_id
-    else:
-        print("ERROR during request to " + str(target_url) + " ---- RESPONSE IS :  " + str(postResponse))
+    post_response = session.post(url=target_url, json=data, headers=header)
+    return post_response
 
 
 def close_connection(current_session):
@@ -139,21 +151,18 @@ def rawdatas_from_tweet(json_path, session, header, biographics_id):
     # 1- transform tweet into rawData (condition for presence of picture(s))
     try:
         with open(json_path) as json_file:
-            rawdata_from_tweet = raw_data(None, None, None, None, None, None, None)
+            rawdata_from_tweet = raw_data(None, None, None, None, None, None, None, str(time.time()))
+            print(rawdata_from_tweet.rawDataCreationDate)
             json_data = json.load(json_file)
             rawdata_from_tweet.rawDataName = json_data['user']['name'] + " " + json_data['created_at']
-            print("USER :  " + rawdata_from_tweet.rawDataName)
-            rawdata_from_tweet.rawDataSourceUri = str(json_data['source'])
-            print("SOURCE   " + str(json_data['source']))
+            rawdata_from_tweet.rawDataSourceUri = json_data['source']
             rawdata_from_tweet.rawDataSourceType = "TWITTER"
             try:
-                rawdata_from_tweet.rawDataCoordinates = str(json_data['coordinates'])
-                print("6    " + str(json_data['coordinates']))
+                rawdata_from_tweet.rawDataCoordinates = extract_coord_from_tweet(json_data)
             except:
                 pass
             try:
-                rawdata_from_tweet.rawDataContent = str(json_data['text'])
-                print("7    " + str(json_data['text']))
+                rawdata_from_tweet.rawDataContent = json_data['text']
             except:
                 pass
             try:
@@ -162,11 +171,9 @@ def rawdatas_from_tweet(json_path, session, header, biographics_id):
                 print(first_media['media_url'])
                 r = requests.get(first_media['media_url'], allow_redirects=True)
                 if (first_media['type'] == "photo"):
-                    print("ENTER ZE MEDIA LOL")
                     rawdata_from_tweet.rawDataDataContentType = "image/jpg"
                     decode = base64.b64encode(r.content).decode('UTF-8')
                     rawdata_from_tweet.rawDataData = str(decode)
-                    print(decode)
             except:
                 pass
         print ("###### SERVICE POSTAL")
@@ -175,33 +182,69 @@ def rawdatas_from_tweet(json_path, session, header, biographics_id):
     except:
         raise ValueError("PROBLEM DURING TWEET DATA'S EXTRACTION")
 
+def extract_coord_from_tweet(tweet):
+    if tweet['coordinates'] is not None:
+        lng = tweet['coordinates']['coordinates'][0]
+        lat = tweet['coordinates']['coordinates'][1]
+    elif tweet['place'] is not None:
+        # relevance-based search by location and name
+        (lat, lng) = geodecode(tweet['place']['full_name'])
+        if lat == 0 and lng == 0:
+            # relevance-based search by different location and name values
+            (lat, lng) = geodecode(tweet['contributors'], ['coordinates'])
+            if lat == 0 and lng == 0:
+                pass
+
+    return str(lat)+','+str(lng)
+
+def geodecode(location):
+    # check if location already resolved
+    if location in resolved_locations:
+        loc = resolved_locations.get(location, "none")
+    else:
+        g = geocoders.Nominatim(user_agent="dummy")
+        loc = g.geocode(location, timeout=10)
+        # store location and coord
+        resolved_locations[location] = loc
+
+    return loc.latitude, loc.longitude
 
 def rawdata_from_ggimage():
     print('TODO ')
 
 
 if __name__ == '__main__':
+
     # Détection de l'extension du fichier image et génération de l'objet biographics
-    # file_type_point = "image/" + Path(image).suffix
-    # file_type = (file_type_point.replace(".", ""))
-    # file_type_point = "image/" + (Path(image).suffix).replace(".", "")
-    # bio = biographics(prenom, nom, image, file_type)
-    # rawdatatest = raw_data("Prenom", None, None, None, "THIS IS THE CONTENT TEXT", "Source TEST", None)
+    i_want_to_create_bio = (len(sys.argv) == 4)
+    i_want_to_create_rawdata = (len(sys.argv) == 1)
+
+    print("i_want_to_create_bio : " + str(i_want_to_create_bio))
+    print("i_want_to_create_rawdata : " + str(i_want_to_create_rawdata))
+    # i_want_to_create_bio = True
+    # i_want_to_create_rawdata = False
+    if i_want_to_create_bio:
+        prenom = sys.argv[1]
+        nom = sys.argv[2]
+        image = sys.argv[3]
+        file_type_point = "image/" + Path(image).suffix
+        file_type = (file_type_point.replace(".", ""))
+        file_type_point = "image/" + (Path(image).suffix).replace(".", "")
+        bio = biographics(prenom, nom, image, file_type)
+
     # Authentification et récupération session authentifiée + header avec le token de sécurité
-
-
     current_session, current_header = authentificate()
 
     # Envoi de la Biographics, et récupération de son External ID
-    #bio_id = create_biographics(bio, current_session, current_header)
-
-
-    # send_rawDatas(rawdatatest, current_session, current_header, "5caf0623828d2838988fb174")
-    rawdatas_from_tweet("./samples/json/1093610212983013376.json", current_session, current_header, "12344555555")
-    # print(str(file_type))
-
+    if i_want_to_create_bio:
+        bio_id = create_biographics(bio, current_session, current_header)
+        print("bio_id ==> " + bio_id)
     # Envoi de la Rawdata et récupération de son External ID
+    elif i_want_to_create_rawdata:
+
+        for file in os.listdir("samples/json"):
+            # send_rawDatas(rawdatatest, current_session, current_header, "5cb5a5b3149b3f00010dd1c0")
+            rawdatas_from_tweet(os.path.join("samples/json", file), current_session, current_header, "4200")
 
     # Envoi de l'InsightGraphRelation (relation Biographics-RawData)
-
     close_connection(current_session)

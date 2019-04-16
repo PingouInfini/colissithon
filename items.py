@@ -9,7 +9,7 @@ class biographics :
 
 class raw_data :
 
-    def __init__(self, rawDataName, rawDataData, rawDataDataContentType, rawDataCoordinates, rawDataContent, rawDataSourceType, rawDataSourceUri):
+    def __init__(self, rawDataName, rawDataData, rawDataDataContentType, rawDataCoordinates, rawDataContent, rawDataSourceType, rawDataSourceUri, rawDataCreationDate):
 
         #INDISPENSABLE
         self.rawDataName = rawDataName
@@ -25,6 +25,8 @@ class raw_data :
         self.rawDataSourceType = rawDataSourceType
 
         self.rawDataSourceUri = rawDataSourceUri
+
+        self.rawDataCreationDate = rawDataCreationDate
 
 class relation_bio_data :
 
