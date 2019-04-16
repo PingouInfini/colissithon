@@ -168,7 +168,7 @@ def rawdatas_from_tweet(json_path, session, header, biographics_id):
                     print(decode)
             except:
                 pass
-        print ("###### SREVICE POSTAL")
+        print ("###### SERVICE POSTAL")
         send_rawDatas(rawdata_from_tweet, session, header, biographics_id)
 
     except:
@@ -189,7 +189,7 @@ if __name__ == '__main__':
     #bio_id = create_biographics(bio, current_session, current_header)
 
     #send_rawDatas(rawdatatest, current_session, current_header, "5caf0623828d2838988fb174")
-    rawdatas_from_tweet("C:/Workspace/colissithon/samples/json/1093211639300743169.json", current_session, current_header, "12344555555")
+    rawdatas_from_tweet("./samples/json/1093211639300743169.json", current_session, current_header, "12344555555")
     #print(str(file_type))
 
     # Envoi de la Rawdata et récupération de son External ID
