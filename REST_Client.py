@@ -20,10 +20,10 @@ biographics_url = SERVEUR_URL + "/api/biographics/"
 rawdata_url = SERVEUR_URL + "/api/raw-data"
 relation_url = SERVEUR_URL + "/api/graph/relation"
 
-
 resolved_locations = {}
 
-def authentificate():
+
+def authentification():
     try:
         payload = {
             'j_username': 'admin',
@@ -147,12 +147,27 @@ def close_connection(current_session):
     # exit(0)
 
 
+def rawdatas_from_ggimage(dir_path, session, header, biographics_id):
+    for picture in os.listdir(dir_path):
+        file_type_point = "image/" + (Path(picture).suffix).replace(".", "")
+        rawdata_from_picture = raw_data(None, None, None, None, None, None, None, str(time.time()))
+        with open(dir_path + "/" + picture, "rb") as image:
+            f = image.read()
+            b = bytearray(f)
+            decode = base64.b64encode(b).decode('UTF-8')
+            rawdata_from_picture.rawDataName = str(picture)
+            rawdata_from_picture.rawDataSourceUri = "Google Images"
+            rawdata_from_picture.rawDataSourceType = "TWITTER"
+            rawdata_from_picture.rawDataDataContentType = file_type_point
+            rawdata_from_picture.rawDataData = str(decode)
+        send_rawDatas(rawdata_from_picture, session, header, biographics_id)
+
+
 def rawdatas_from_tweet(json_path, session, header, biographics_id):
     # 1- transform tweet into rawData (condition for presence of picture(s))
     try:
         with open(json_path) as json_file:
             rawdata_from_tweet = raw_data(None, None, None, None, None, None, None, str(time.time()))
-            print(rawdata_from_tweet.rawDataCreationDate)
             json_data = json.load(json_file)
             rawdata_from_tweet.rawDataName = json_data['user']['name'] + " " + json_data['created_at']
             rawdata_from_tweet.rawDataSourceUri = json_data['source']
@@ -182,6 +197,7 @@ def rawdatas_from_tweet(json_path, session, header, biographics_id):
     except:
         raise ValueError("PROBLEM DURING TWEET DATA'S EXTRACTION")
 
+
 def extract_coord_from_tweet(tweet):
     if tweet['coordinates'] is not None:
         lng = tweet['coordinates']['coordinates'][0]
@@ -195,7 +211,8 @@ def extract_coord_from_tweet(tweet):
             if lat == 0 and lng == 0:
                 pass
 
-    return str(lat)+','+str(lng)
+    return str(lat) + ',' + str(lng)
+
 
 def geodecode(location):
     # check if location already resolved
@@ -209,18 +226,16 @@ def geodecode(location):
 
     return loc.latitude, loc.longitude
 
-def rawdata_from_ggimage():
-    print('TODO ')
-
 
 if __name__ == '__main__':
 
     # Détection de l'extension du fichier image et génération de l'objet biographics
     i_want_to_create_bio = (len(sys.argv) == 4)
-    i_want_to_create_rawdata = (len(sys.argv) == 1)
+    i_want_to_create_rawdata_from_tweets = (len(sys.argv) == 1)
+    i_want_to_create_rawdata_from_pictures_dir = (len(sys.argv) ==2)
 
     print("i_want_to_create_bio : " + str(i_want_to_create_bio))
-    print("i_want_to_create_rawdata : " + str(i_want_to_create_rawdata))
+    print("i_want_to_create_rawdata_from_tweets : " + str(i_want_to_create_rawdata_from_tweets))
     # i_want_to_create_bio = True
     # i_want_to_create_rawdata = False
     if i_want_to_create_bio:
@@ -233,18 +248,22 @@ if __name__ == '__main__':
         bio = biographics(prenom, nom, image, file_type)
 
     # Authentification et récupération session authentifiée + header avec le token de sécurité
-    current_session, current_header = authentificate()
+    current_session, current_header = authentification()
 
     # Envoi de la Biographics, et récupération de son External ID
     if i_want_to_create_bio:
         bio_id = create_biographics(bio, current_session, current_header)
         print("bio_id ==> " + bio_id)
     # Envoi de la Rawdata et récupération de son External ID
-    elif i_want_to_create_rawdata:
+    elif i_want_to_create_rawdata_from_tweets:
 
         for file in os.listdir("samples/json"):
             # send_rawDatas(rawdatatest, current_session, current_header, "5cb5a5b3149b3f00010dd1c0")
-            rawdatas_from_tweet(os.path.join("samples/json", file), current_session, current_header, "4200")
+            rawdatas_from_tweet(os.path.join("samples/json", file), current_session, current_header, 4232)
+
+    elif i_want_to_create_rawdata_from_pictures_dir:
+        pictures_dir_path = sys.argv[1]
+        rawdatas_from_ggimage(pictures_dir_path, current_session, current_header, 4232)
 
     # Envoi de l'InsightGraphRelation (relation Biographics-RawData)
     close_connection(current_session)
