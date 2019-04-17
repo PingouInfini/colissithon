@@ -1,15 +1,5 @@
-import base64
-import json
-import sys
-from pathlib import Path
-import time
 import requests
-import os
-
-from geopy import geocoders
-
-# -*- coding: UTF-8 -*-
-from items import biographics, relation_bio_data, raw_data
+import json
 
 # SERVEUR_URL = "http://172.20.0.8:8080"
 SERVEUR_URL = "http://localhost:8080"
@@ -22,12 +12,11 @@ relation_url = SERVEUR_URL + "/api/graph/relation"
 
 resolved_locations = {}
 
-
-def authentification():
+def authentification(username="admin", password="admin"):
     try:
         payload = {
-            'j_username': 'admin',
-            'j_password': 'admin',
+            'j_username': username,
+            'j_password': password,
             'remember-me': 'true',
             'submit': 'Login'
         }
@@ -68,8 +57,11 @@ def authentification():
     except:
         raise ValueError("Authorization failed")
 
+def close_connection(current_session):
+    current_session.close()
+    # exit(0)
 
-def create_biographics(biographics, session, header_with_token):
+def create_dto_biographic(biographics, session, header_with_token):
     with open(biographics.biographicsImage, "rb") as image:
         f = image.read()
         b = bytearray(f)
@@ -89,7 +81,6 @@ def create_biographics(biographics, session, header_with_token):
         print("SUCCESSFUL REQUEST :  " + str(post_response))
         print("RETURNED TARGET ID OF BIOGRAPHICS IS :" + str(target_ID))
         return target_ID
-
 
 def send_rawDatas(rawData, session, header_with_token, biographics_id):
     data = {
@@ -142,11 +133,6 @@ def post_data_to_insight(data, session, header, target_url):
     return post_response
 
 
-def close_connection(current_session):
-    current_session.close()
-    # exit(0)
-
-
 def rawdatas_from_ggimage(dir_path, session, header, biographics_id):
     for picture in os.listdir(dir_path):
         file_type_point = "image/" + (Path(picture).suffix).replace(".", "")
@@ -163,7 +149,7 @@ def rawdatas_from_ggimage(dir_path, session, header, biographics_id):
         send_rawDatas(rawdata_from_picture, session, header, biographics_id)
 
 
-def rawdatas_from_tweet(json_path, session, header, biographics_id):
+def rawdatas_from_tweet(json_path, biographics_id, session, header):
     # 1- transform tweet into rawData (condition for presence of picture(s))
     try:
         with open(json_path) as json_file:
@@ -225,45 +211,3 @@ def geodecode(location):
         resolved_locations[location] = loc
 
     return loc.latitude, loc.longitude
-
-
-if __name__ == '__main__':
-
-    # Détection de l'extension du fichier image et génération de l'objet biographics
-    i_want_to_create_bio = (len(sys.argv) == 4)
-    i_want_to_create_rawdata_from_tweets = (len(sys.argv) == 1)
-    i_want_to_create_rawdata_from_pictures_dir = (len(sys.argv) ==2)
-
-    print("i_want_to_create_bio : " + str(i_want_to_create_bio))
-    print("i_want_to_create_rawdata_from_tweets : " + str(i_want_to_create_rawdata_from_tweets))
-    # i_want_to_create_bio = True
-    # i_want_to_create_rawdata = False
-    if i_want_to_create_bio:
-        prenom = sys.argv[1]
-        nom = sys.argv[2]
-        image = sys.argv[3]
-        file_type_point = "image/" + Path(image).suffix
-        file_type = (file_type_point.replace(".", ""))
-        file_type_point = "image/" + (Path(image).suffix).replace(".", "")
-        bio = biographics(prenom, nom, image, file_type)
-
-    # Authentification et récupération session authentifiée + header avec le token de sécurité
-    current_session, current_header = authentification()
-
-    # Envoi de la Biographics, et récupération de son External ID
-    if i_want_to_create_bio:
-        bio_id = create_biographics(bio, current_session, current_header)
-        print("bio_id ==> " + bio_id)
-    # Envoi de la Rawdata et récupération de son External ID
-    elif i_want_to_create_rawdata_from_tweets:
-
-        for file in os.listdir("samples/json"):
-            # send_rawDatas(rawdatatest, current_session, current_header, "5cb5a5b3149b3f00010dd1c0")
-            rawdatas_from_tweet(os.path.join("samples/json", file), current_session, current_header, 4232)
-
-    elif i_want_to_create_rawdata_from_pictures_dir:
-        pictures_dir_path = sys.argv[1]
-        rawdatas_from_ggimage(pictures_dir_path, current_session, current_header, 4232)
-
-    # Envoi de l'InsightGraphRelation (relation Biographics-RawData)
-    close_connection(current_session)
