@@ -1,5 +1,9 @@
 import requests
 import json
+import base64
+import time
+
+from items import raw_data
 
 # SERVEUR_URL = "http://172.20.0.8:8080"
 SERVEUR_URL = "http://localhost:8080"
