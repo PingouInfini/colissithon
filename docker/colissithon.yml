@@ -1,0 +1,13 @@
+version: '3'
+services:
+  colissithon:
+    build:
+      context: ./context/
+    ports:
+    - "22:22"
+    environment:
+      COLISSITHON_NAME: COLISSITHON
+    networks:
+    - reach
+networks:
+  reach:

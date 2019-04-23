@@ -31,6 +31,15 @@ out/
 ######################
 *virtual*env/
 
+####################
+# DOCKER
+#################
+docker/*
+!colissithon.yml
+!requirements.txt
+!Dockerfile
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
