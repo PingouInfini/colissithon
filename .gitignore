@@ -3,6 +3,7 @@ __pycache__
 venv
 set-environment.sh
 stashed
+*.json
 *.jsonl
 *.txt
 !requirements.txt

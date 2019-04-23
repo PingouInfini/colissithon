@@ -13,14 +13,14 @@ exemple:
 
 #### create_new_biographics
 
-    python3 colissithon.py 1 bob jouy samples/LaSardine.jpg
+    python3 send_colis.py 1 bob jouy samples/LaSardine.jpg
     
 #### link_tweet_to_bio
-> Link all tweets in "samples/json" to id_bio
+> Link all tweets in **"samples/json"** to id_bio: 
 
-    python3 colissithon.py 2 <id_bio>
+    python3 send_colis.py 2 <id_bio>
     
-##### link_tweet_to_bio
-> Link all tweets in "samples/pictures" to id_bio
+##### link_pictures_to_bio
+> Link all corresponding pictures of the candidate  in **"samples/pictures"** to id_bio: 
 
-    python3 colissithon.py 3 <id_bio>   
+    python3 send_colis.py 3 <id_bio>   
