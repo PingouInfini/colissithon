@@ -7,7 +7,6 @@ from main.variables import path_to_tweets_dir, path_to_pictures_dir
 
 # -*- coding: UTF-8 -*-
 
-
 def create_new_biographics(prenom, nom, image):
     bio = biographics(prenom, nom, image, "image/" + (Path(image).suffix).replace(".", ""))
     current_session, current_header = con_serv.authentification()
