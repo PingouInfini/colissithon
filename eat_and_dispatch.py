@@ -14,20 +14,21 @@ app = Flask(__name__)
 def prepare_biographics():
 
     colis_json = request.get_json()
-    first_name = colis_json['first_name']
-    name = colis_json['name']
-    #picture = colis_json['picture']
-    #bio_id = send_colis.create_new_biographics(first_name,name,picture)
-    print (str(first_name) + " " + str(name) + " bien arrivé dans Insight")
-    return str(bio_id +" created at " + datetime.datetime.now())
+    first_name = colis_json['biographicsFirstName']
+    name = colis_json['biographicsName']
+    picture = colis_json['biographicsImage']
+    picture_type = colis_json['biographicsImageContentType']
+    bio_id = send_colis.create_new_biographics(first_name,name,picture, picture_type)
+    print (str(first_name) + " " + str(name) + " bien arrivé dans Insight, son image type est : " + str(picture_type))
+    return (str(bio_id) +" created at " + str(datetime.datetime.now()))
 
 
 def start_REST_server(port) :
-    print("Start REST SERVER on port  " + str(custom_port))
+    print("Colissithon starts the REST SERVER on port  " + str(custom_port))
     app.run(host='0.0.0.0', port=port)
 
 def start_kafka_consumer() :
-    print("Start KAFKA CONSUMER wolalalalala")
+    print("Colissithon starts the KAFKA CONSUMER")
     consumer = KafkaConsumer(
         'numtest',
         bootstrap_servers = ['localhost:8092'],
