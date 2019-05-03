@@ -11,7 +11,7 @@ from main.variables import rawdata_url
 resolved_locations = {}
 
 
-def rawdatas_from_ggimage(path_to_pictures_dir,file, biographics_id, session, header):
+def rawdatas_from_ggimage(path_to_pictures_dir, file, biographics_id, session, header):
     # for picture in os.listdir(dir_path):
     fname, fext = os.path.splitext(file)
     file_type_point = "image/" + str(fext).replace(".", "")
@@ -30,35 +30,32 @@ def rawdatas_from_ggimage(path_to_pictures_dir,file, biographics_id, session, he
     send_rawDatas(rawdata_from_picture, biographics_id, session, header)
 
 
-def rawdatas_from_tweet(json_path, biographics_id, session, header):
+def rawdatas_from_tweet(json_tweet, biographics_id, session, header):
     # 1- transform tweet into rawData (condition for presence of picture(s))
     try:
-        with open(json_path) as json_file:
-            rawdata_from_tweet = raw_data(None, None, None, None, None, None, None, str(time.time()))
-            json_data = json.load(json_file)
-            rawdata_from_tweet.rawDataName = json_data['user']['name'] + " " + json_data['created_at']
-            rawdata_from_tweet.rawDataSourceUri = json_data['source']
-            rawdata_from_tweet.rawDataSourceType = "TWITTER"
-            try:
-                rawdata_from_tweet.rawDataCoordinates = extract_coord_from_tweet(json_data)
-            except:
-                pass
-            try:
-                rawdata_from_tweet.rawDataContent = json_data['text']
-            except:
-                pass
-            try:
-                index = 0
-                first_media = json_data['entities']['media'][0]
-                print(first_media['media_url'])
-                r = requests.get(first_media['media_url'], allow_redirects=True)
-                if (first_media['type'] == "photo"):
-                    rawdata_from_tweet.rawDataDataContentType = "image/jpg"
-                    decode = base64.b64encode(r.content).decode('UTF-8')
-                    rawdata_from_tweet.rawDataData = str(decode)
-            except:
-                pass
-        print("###### SERVICE POSTAL")
+        rawdata_from_tweet = raw_data(None, None, None, None, None, None, None, str(time.time()))
+        rawdata_from_tweet.rawDataName = json_tweet['user']['name'] + " " + json_tweet['created_at']
+        rawdata_from_tweet.rawDataSourceUri = json_tweet['source']
+        rawdata_from_tweet.rawDataSourceType = "TWITTER"
+        try:
+            rawdata_from_tweet.rawDataCoordinates = extract_coord_from_tweet(json_tweet)
+        except:
+            pass
+        try:
+            rawdata_from_tweet.rawDataContent = json_tweet['text']
+        except:
+            pass
+        try:
+            index = 0
+            first_media = json_tweet['entities']['media'][0]
+            print(first_media['media_url'])
+            r = requests.get(first_media['media_url'], allow_redirects=True)
+            if (first_media['type'] == "photo"):
+                rawdata_from_tweet.rawDataDataContentType = "image/jpg"
+                decode = base64.b64encode(r.content).decode('UTF-8')
+                rawdata_from_tweet.rawDataData = str(decode)
+        except:
+            pass
 
         send_rawDatas(rawdata_from_tweet, biographics_id, session, header)
 
@@ -118,7 +115,7 @@ def send_rawDatas(rawData, biographics_id, session, header_with_token):
     if not (rawData.rawDataCreationDate is None):
         data.update({"rawDataCreationDate": rawData.rawDataCreationDate})
 
-    post_response = session.post(url = rawdata_url, json = data, headers = header_with_token)
+    post_response = session.post(url=rawdata_url, json=data, headers=header_with_token)
 
     if post_response.status_code == 201:
         data = json.loads(post_response.content)
@@ -128,10 +125,11 @@ def send_rawDatas(rawData, biographics_id, session, header_with_token):
         bind_biographics_to_rawdata(biographics_id, target_ID, session, header_with_token)
         return target_ID
 
-def bind_biographics_to_rawdata (biographics_id, target_ID, session, header_with_token) :
-    link = {"idJanusSource" : biographics_id,
-            "idJanusCible" : target_ID,
-            "typeSource" : "Biographics",
-            "typeCible" : "RawData"}
-    post_response = session.post(url = relation_url, json = link, headers = header_with_token)
-    print (str(post_response) + "   : liens bio-rawdatas bien créé")
+
+def bind_biographics_to_rawdata(biographics_id, target_ID, session, header_with_token):
+    link = {"idJanusSource": biographics_id,
+            "idJanusCible": target_ID,
+            "typeSource": "Biographics",
+            "typeCible": "RawData"}
+    post_response = session.post(url=relation_url, json=link, headers=header_with_token)
+    print(str(post_response) + "   : liens bio-rawdatas bien créé")

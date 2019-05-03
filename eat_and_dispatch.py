@@ -20,33 +20,46 @@ def prepare_biographics():
     picture_type = colis_json['biographicsImageContentType']
     bio_id = send_colis.create_new_biographics(first_name,name,picture, picture_type)
     print (str(first_name) + " " + str(name) + " bien arrivé dans Insight, son image type est : " + str(picture_type))
-    return (str(bio_id) +" created at " + str(datetime.datetime.now()))
+    return str(bio_id)
 
 
 def start_REST_server(port) :
-    print("Colissithon starts the REST SERVER on port  " + str(custom_port))
     app.run(host='0.0.0.0', port=port)
 
-def start_kafka_consumer() :
-    print("Colissithon starts the KAFKA CONSUMER")
+def start_tweets_consumer() :
     consumer = KafkaConsumer(
-        'numtest',
+        'tweetopic',
         bootstrap_servers = ['localhost:8092'],
         auto_offset_reset='earliest',
         enable_auto_commit=True,
         group_id = 'my-group',
         value_deserializer=lambda x: loads(x.decode('utf-8'))
     )
-    for message in consumer :
-        print(message.value)
+    for msg in consumer :
+        tweet_json = msg.value[0]
+        bio_id = msg.value[1]
+        send_colis.link_tweet_to_bio(tweet_json, bio_id)
+
+def start_pictures_consumer() :
+    consumer = KafkaConsumer(
+        'topictures',
+        bootstrap_servers = ['localhost:8092'],
+        auto_offset_reset='earliest',
+        enable_auto_commit=True,
+        group_id = 'my-group',
+        value_deserializer=lambda x: loads(x.decode('utf-8'))
+    )
+    for value in consumer :
+        print("#########" + value)
 
 if __name__ == '__main__':
     REST_thread = threading.Thread(target = start_REST_server, args=(custom_port,))
-    kafka_thread = threading.Thread(target= start_kafka_consumer)
+    rawdatas_thread = threading.Thread(target= start_tweets_consumer)
+    pictures_thread = threading.Thread(target= start_pictures_consumer)
 
     REST_thread.start()
-    kafka_thread.start()
-
+    rawdatas_thread.start()
+    pictures_thread.start()
 
 
 
