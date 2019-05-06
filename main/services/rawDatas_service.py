@@ -1,32 +1,25 @@
-import requests
-import os
 import base64
-from main.items.raw_data import raw_data
 import json
-from pathlib import Path
 import time
-from main.variables import relation_url
+
+import requests
+
+from main.items.raw_data import raw_data
 from main.variables import rawdata_url
+from main.variables import relation_url
 
 resolved_locations = {}
 
 
-def rawdatas_from_ggimage(path_to_pictures_dir, file, biographics_id, session, header):
-    # for picture in os.listdir(dir_path):
-    fname, fext = os.path.splitext(file)
-    file_type_point = "image/" + str(fext).replace(".", "")
-    print("####################################   " + file_type_point)
-
+def rawdatas_from_ggimage(json_picture, biographics_id, session, header):
+    #Extract picture and metadatas from json
+    print("###### rawdatas_from_ggimage")
     rawdata_from_picture = raw_data(None, None, None, None, None, None, None, str(time.time()))
-    with open(path_to_pictures_dir + "/" + file, "rb") as image:
-        f = image.read()
-        b = bytearray(f)
-        decode = base64.b64encode(b).decode('UTF-8')
-        rawdata_from_picture.rawDataName = str(file)
-        rawdata_from_picture.rawDataSourceUri = "Google Images"
-        rawdata_from_picture.rawDataSourceType = "TWITTER"
-        rawdata_from_picture.rawDataDataContentType = file_type_point
-        rawdata_from_picture.rawDataData = str(decode)
+    rawdata_from_picture.rawDataName = json_picture['name']
+    print ("######## success : " + str(rawdata_from_picture.rawDataName))
+    rawdata_from_picture.rawDataSourceUri = "Google Images"
+    rawdata_from_picture.rawDataDataContentType = json_picture['extension']
+    rawdata_from_picture.rawDataData = json_picture['image']
     send_rawDatas(rawdata_from_picture, biographics_id, session, header)
 
 

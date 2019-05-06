@@ -18,9 +18,9 @@ def link_tweet_to_bio(json_tweet, id_bio):
     current_session, current_header = con_serv.authentification()
     raw_serv.rawdatas_from_tweet(json_tweet, id_bio, current_session, current_header)
 
-def link_picture_to_bio(path_to_pictures_dir, file, id_bio):
+def link_picture_to_bio(json_picture, id_bio):
     current_session, current_header = con_serv.authentification()
-    raw_serv.rawdatas_from_ggimage(path_to_pictures_dir, file, id_bio, current_session, current_header)
+    raw_serv.rawdatas_from_ggimage(json_picture, id_bio, current_session, current_header)
 
 
 if __name__ == '__main__':

@@ -49,8 +49,10 @@ def start_pictures_consumer() :
         group_id = 'my-group',
         value_deserializer=lambda x: loads(x.decode('utf-8'))
     )
-    for value in consumer :
-        print("#########" + value)
+    for msg in consumer :
+        picture_json = msg.value[0]
+        bio_id = msg.value[1]
+        send_colis.link_picture_to_bio(picture_json, bio_id)
 
 if __name__ == '__main__':
     REST_thread = threading.Thread(target = start_REST_server, args=(custom_port,))
