@@ -1,6 +1,8 @@
-import requests
 import json
+import requests
+
 from main.variables import authentication_url, account_url
+
 
 def authentification(username="admin", password="admin"):
     try:
@@ -46,6 +48,7 @@ def authentification(username="admin", password="admin"):
 
     except:
         raise ValueError("Authorization failed")
+
 
 def close_connection(current_session):
     current_session.close()

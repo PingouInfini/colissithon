@@ -1,9 +1,7 @@
 import base64
 import json
 import time
-
 import requests
-
 from main.items.raw_data import raw_data
 from main.variables import rawdata_url
 from main.variables import relation_url
@@ -12,11 +10,9 @@ resolved_locations = {}
 
 
 def rawdatas_from_ggimage(json_picture, biographics_id, session, header):
-    #Extract picture and metadatas from json
-    print("###### rawdatas_from_ggimage")
+    # Extract picture and metadatas from json
     rawdata_from_picture = raw_data(None, None, None, None, None, None, None, str(time.time()))
     rawdata_from_picture.rawDataName = json_picture['name']
-    print ("######## success : " + str(rawdata_from_picture.rawDataName))
     rawdata_from_picture.rawDataSourceUri = "Google Images"
     rawdata_from_picture.rawDataDataContentType = json_picture['extension']
     rawdata_from_picture.rawDataData = json_picture['image']
@@ -41,7 +37,6 @@ def rawdatas_from_tweet(json_tweet, biographics_id, session, header):
         try:
             index = 0
             first_media = json_tweet['entities']['media'][0]
-            print(first_media['media_url'])
             r = requests.get(first_media['media_url'], allow_redirects=True)
             if (first_media['type'] == "photo"):
                 rawdata_from_tweet.rawDataDataContentType = "image/jpg"

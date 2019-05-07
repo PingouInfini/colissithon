@@ -1,5 +1,4 @@
-class biographics :
-
+class biographics:
     def __init__(self, biographicsFirstname, biographicsName, biographicsImage, biographicsImageContentType):
         self.biographicsName = biographicsName
         self.biographicsFirstname = biographicsFirstname

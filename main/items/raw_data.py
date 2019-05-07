@@ -1,8 +1,7 @@
-class raw_data :
-
-    def __init__(self, rawDataName, rawDataData, rawDataDataContentType, rawDataCoordinates, rawDataContent, rawDataSourceType, rawDataSourceUri, rawDataCreationDate):
-
-        #INDISPENSABLE
+class raw_data:
+    def __init__(self, rawDataName, rawDataData, rawDataDataContentType, rawDataCoordinates, rawDataContent,
+                 rawDataSourceType, rawDataSourceUri, rawDataCreationDate):
+        # INDISPENSABLE
         self.rawDataName = rawDataName
 
         # Pour les images
