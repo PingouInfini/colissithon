@@ -108,8 +108,6 @@ def send_rawDatas(rawData, biographics_id, session, header_with_token):
     if post_response.status_code == 201:
         data = json.loads(post_response.content)
         target_ID = data["externalId"]
-        print("SUCCESSFUL REQUEST :  " + str(post_response))
-        print("RETURNED TARGET ID OF RAWDATA IS :" + str(target_ID))
         bind_biographics_to_rawdata(biographics_id, target_ID, session, header_with_token)
         return target_ID
 
@@ -120,4 +118,4 @@ def bind_biographics_to_rawdata(biographics_id, target_ID, session, header_with_
             "typeSource": "Biographics",
             "typeCible": "RawData"}
     post_response = session.post(url=relation_url, json=link, headers=header_with_token)
-    print(str(post_response) + "   : liens bio-rawdatas bien créé")
+    print(str(post_response) + "   : lien bio-rawdatas bien créé")

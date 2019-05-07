@@ -1,6 +1,6 @@
 import threading
 from json import loads
-
+import sys
 import yaml
 from flask import Flask
 from flask import request
@@ -8,7 +8,7 @@ from kafka import KafkaConsumer
 
 import send_colis as send_colis
 
-with open('colissithon.yml', 'r') as file :
+with open(sys.argv[1], 'r') as file :
     param = yaml.load(file)
 custom_port = param["colissithon_port"]
 app = Flask(__name__)

@@ -1,7 +1,4 @@
-import yaml
-
-with open('colissithon.yml', 'r') as file:
-    parameters = yaml.load(file)
+from eat_and_dispatch import param as parameters
 
 # URL
 SERVEUR_URL = parameters["insight_url"]
