@@ -1,0 +1,4 @@
+insight_url : http://localhost:8080
+tweets_directory : samples/json
+pictures_directory : samples/pictures
+colissithon_port: 9876
