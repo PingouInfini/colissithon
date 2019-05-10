@@ -4,7 +4,7 @@ services:
     build:
       context: ./context/
     ports:
-    - "22:22"
+    - "9876:9876"
     environment:
       COLISSITHON_NAME: COLISSITHON
     networks:

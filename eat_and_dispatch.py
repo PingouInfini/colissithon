@@ -32,7 +32,7 @@ def start_REST_server(port):
 def start_tweets_consumer():
     consumer = KafkaConsumer(
         'tweetopic',
-        bootstrap_servers=['localhost:8092'],
+        bootstrap_servers=['192.168.0.12:8092'],
         auto_offset_reset='earliest',
         enable_auto_commit=True,
         group_id='my-group',
@@ -47,7 +47,7 @@ def start_tweets_consumer():
 def start_pictures_consumer():
     consumer = KafkaConsumer(
         'topictures',
-        bootstrap_servers=['localhost:8092'],
+        bootstrap_servers=['192.168.0.12:8092'],
         auto_offset_reset='earliest',
         enable_auto_commit=True,
         group_id='my-group',
