@@ -11,9 +11,9 @@ COPY sshd_config /etc/ssh/sshd_config
 RUN mkdir /app
 COPY requirements.txt /app/
 COPY dockerdist/*.* /app/
-RUN mkdir /app/main && \
+RUN mkdir /app/src && \
     mkdir /app/samples
-COPY dockerdist/main /app/main
+COPY dockerdist/src /app/src
 COPY dockerdist/samples /app/samples
 
 RUN apt-get update

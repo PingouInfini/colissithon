@@ -2,9 +2,9 @@ import base64
 import json
 import time
 import requests
-from main.items.raw_data import raw_data
-from main.variables import rawdata_url
-from main.variables import relation_url
+from src.items.raw_data import raw_data
+from src.variables import rawdata_url
+from src.variables import relation_url
 
 resolved_locations = {}
 

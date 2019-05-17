@@ -1,5 +1,5 @@
-from main.items.biographics import biographics
-from main.services import biographics_service as bio_serv, connection_service as con_serv, rawDatas_service as raw_serv
+from src.items.biographics import biographics
+from src.services import biographics_service as bio_serv, connection_service as con_serv, rawDatas_service as raw_serv
 
 
 # -*- coding: UTF-8 -*-

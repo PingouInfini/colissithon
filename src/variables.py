@@ -1,7 +1,7 @@
 from eat_and_dispatch import param as parameters
 
 # URL
-SERVEUR_URL = parameters["insight_url"]
+SERVEUR_URL = "http://"+str(parameters["insight_IP"])+":"+str(parameters["insight_port"])
 authentication_url = SERVEUR_URL + "/api/authentication"
 account_url = SERVEUR_URL + "/api/account"
 biographics_url = SERVEUR_URL + "/api/biographics/"

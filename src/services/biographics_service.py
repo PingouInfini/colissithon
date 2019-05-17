@@ -1,6 +1,6 @@
 import base64
 import json
-from main.variables import biographics_url
+from src.variables import biographics_url
 
 def create_dto_biographic(biographics, session, header_with_token):
     # with open(biographics.biographicsImage, "rb") as image:

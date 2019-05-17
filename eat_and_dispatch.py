@@ -11,6 +11,8 @@ import send_colis as send_colis
 with open(sys.argv[1], 'r') as file :
     param = yaml.load(file)
 custom_port = param["colissithon_port"]
+kafka_endpoint = str(param["insight_IP"]) + ":" + str(param["kafka_port"])
+print ("########### KAFKA ENDPOINT IS :  "+ kafka_endpoint)
 app = Flask(__name__)
 
 
@@ -32,7 +34,7 @@ def start_REST_server(port):
 def start_tweets_consumer():
     consumer = KafkaConsumer(
         'tweetopic',
-        bootstrap_servers=['192.168.0.12:8092'],
+        bootstrap_servers=[kafka_endpoint],
         auto_offset_reset='earliest',
         enable_auto_commit=True,
         group_id='my-group',
@@ -47,7 +49,7 @@ def start_tweets_consumer():
 def start_pictures_consumer():
     consumer = KafkaConsumer(
         'topictures',
-        bootstrap_servers=['192.168.0.12:8092'],
+        bootstrap_servers=[kafka_endpoint],
         auto_offset_reset='earliest',
         enable_auto_commit=True,
         group_id='my-group',
