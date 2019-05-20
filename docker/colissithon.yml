@@ -8,6 +8,6 @@ services:
     environment:
       COLISSITHON_NAME: COLISSITHON
     networks:
-    - insight
+    - reach
 networks:
-  insight:
+  reach:
