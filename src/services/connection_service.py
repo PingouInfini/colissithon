@@ -1,7 +1,7 @@
 import json
 import requests
 
-from main.variables import authentication_url, account_url
+from src.variables import authentication_url, account_url
 
 
 def authentification(username="admin", password="admin"):
