@@ -1,6 +1,0 @@
-insight_IP : 192.168.0.3
-tweets_directory : samples/json
-pictures_directory : samples/pictures
-insight_port : 8080
-colissithon_port: 9876
-kafka_port: 8092

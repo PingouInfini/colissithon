@@ -1,18 +1,18 @@
 import threading
 from json import loads
-import sys
-import yaml
 from flask import Flask
 from flask import request
 from kafka import KafkaConsumer
+import os
 
 import send_colis as send_colis
 
-with open(sys.argv[1], 'r') as file :
-    param = yaml.load(file)
-custom_port = param["colissithon_port"]
-kafka_endpoint = str(param["insight_IP"]) + ":" + str(param["kafka_port"])
-print ("########### KAFKA ENDPOINT IS :  "+ kafka_endpoint)
+# with open(sys.argv[1], 'r') as file :
+#     param = yaml.load(file)
+
+colissithon_port = os.environ["COLISSITHON_PORT"]
+kafka_endpoint = str(os.environ["KAFKA_IP"]) + ":" + str(os.environ["KAFKA_PORT"])
+print("########### KAFKA ENDPOINT IS :  " + kafka_endpoint)
 app = Flask(__name__)
 
 
@@ -62,7 +62,7 @@ def start_pictures_consumer():
 
 
 if __name__ == '__main__':
-    REST_thread = threading.Thread(target=start_REST_server, args=(custom_port,))
+    REST_thread = threading.Thread(target=start_REST_server, args=(colissithon_port,))
     rawdatas_thread = threading.Thread(target=start_tweets_consumer)
     pictures_thread = threading.Thread(target=start_pictures_consumer)
 
