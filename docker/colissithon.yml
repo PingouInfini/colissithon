@@ -13,6 +13,7 @@ services:
             - KAFKA_IP=192.168.0.50
             - KAFKA_PORT=8092
             - COLISSITHON_PORT=9876
+            - DEBUG_LEVEL=INFO
         networks:
         - reach
 networks:
