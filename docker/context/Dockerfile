@@ -11,10 +11,8 @@ COPY sshd_config /etc/ssh/sshd_config
 RUN mkdir /app
 COPY requirements.txt /app/
 COPY dockerdist/*.* /app/
-RUN mkdir /app/src && \
-    mkdir /app/samples
+RUN mkdir /app/src
 COPY dockerdist/src /app/src
-COPY dockerdist/samples /app/samples
 
 RUN apt-get update
 RUN apt-get install -y python3-pip

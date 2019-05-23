@@ -1,10 +1,12 @@
 import base64
 import json
 import time
+
 import requests
+
 from src.items.raw_data import raw_data
+from src.services import relation_service
 from src.variables import rawdata_url
-from src.variables import relation_url
 
 resolved_locations = {}
 
@@ -108,14 +110,5 @@ def send_rawDatas(rawData, biographics_id, session, header_with_token):
     if post_response.status_code == 201:
         data = json.loads(post_response.content)
         target_ID = data["externalId"]
-        bind_biographics_to_rawdata(biographics_id, target_ID, session, header_with_token)
+        relation_service.bind_object_to_biographics(biographics_id, target_ID, session, header_with_token)
         return target_ID
-
-
-def bind_biographics_to_rawdata(biographics_id, target_ID, session, header_with_token):
-    link = {"idJanusSource": biographics_id,
-            "idJanusCible": target_ID,
-            "typeSource": "Biographics",
-            "typeCible": "RawData"}
-    post_response = session.post(url=relation_url, json=link, headers=header_with_token)
-    print(str(post_response) + "   : lien bio-rawdatas bien créé")

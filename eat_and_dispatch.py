@@ -1,10 +1,12 @@
+import logging
+import os
 import threading
 from json import loads
+
 from flask import Flask
 from flask import request
 from kafka import KafkaConsumer
-import os
-import logging
+
 import send_colis as send_colis
 
 # with open(sys.argv[1], 'r') as file :
@@ -12,33 +14,52 @@ import send_colis as send_colis
 
 debug_level = os.environ["DEBUG_LEVEL"]
 
-if debug_level == "DEBUG" :
+if debug_level == "DEBUG":
     logging.basicConfig(level=logging.DEBUG)
-elif debug_level == "INFO" :
+elif debug_level == "INFO":
     logging.basicConfig(level=logging.INFO)
-elif debug_level == "WARNING" :
+elif debug_level == "WARNING":
     logging.basicConfig(level=logging.WARNING)
-elif debug_level == "ERROR" :
+elif debug_level == "ERROR":
     logging.basicConfig(level=logging.ERROR)
-elif debug_level == "CRITICAL" :
+elif debug_level == "CRITICAL":
     logging.basicConfig(level=logging.CRITICAL)
 
+topic_from_tweethon = os.environ["FROM_TWEETHON"]
+topic_from_comparathon = os.environ["FROM_COMPARATHON"]
 
 colissithon_port = os.environ["COLISSITHON_PORT"]
 kafka_endpoint = str(os.environ["KAFKA_IP"]) + ":" + str(os.environ["KAFKA_PORT"])
-print("########### KAFKA ENDPOINT IS :  " + kafka_endpoint)
+# colissithon_port = 9876
+# kafka_endpoint = "192.168.0.13:8092"
 app = Flask(__name__)
 
 
 @app.route('/create_bio', methods=['POST'])
-def prepare_biographics():
+def create_candidate_biographics():
     logging.info('create_bio service called')
+    personJson = request.get_json()
+    first_name = personJson['biographicsFirstName']
+    name = personJson['biographicsName']
+    picture = personJson['biographicsImage']
+    picture_type = personJson['biographicsImageContentType']
+    bio_id = send_colis.create_new_biographics(first_name, name, picture, picture_type)
+    return str(bio_id)
+
+
+@app.route('/bind_bio', methods=['POST'])
+def create_related_biographics():
+    logging.info('bind_bio service called')
+    send_colis.bind_bio_to_bio(request.get_json())
+
+
+@app.route('/create_minibio', methods=['POST'])
+def prepare_mini_biographics():
     colis_json = request.get_json()
     first_name = colis_json['biographicsFirstName']
     name = colis_json['biographicsName']
-    logging.debug('creation of biographics for ' + str(first_name) + " " + str(name))
-    picture = colis_json['biographicsImage']
-    picture_type = colis_json['biographicsImageContentType']
+    picture = None
+    picture_type = None
     bio_id = send_colis.create_new_biographics(first_name, name, picture, picture_type)
     return str(bio_id)
 
@@ -49,7 +70,7 @@ def start_REST_server(port):
 
 def start_tweets_consumer():
     consumer = KafkaConsumer(
-        'tweetopic',
+        topic_from_tweethon,
         bootstrap_servers=[kafka_endpoint],
         auto_offset_reset='earliest',
         enable_auto_commit=True,
@@ -67,7 +88,7 @@ def start_tweets_consumer():
 
 def start_pictures_consumer():
     consumer = KafkaConsumer(
-        'topictures',
+        topic_from_comparathon,
         bootstrap_servers=[kafka_endpoint],
         auto_offset_reset='earliest',
         enable_auto_commit=True,
@@ -84,7 +105,7 @@ def start_pictures_consumer():
 
 
 if __name__ == '__main__':
-    REST_thread = threading.Thread(target=start_REST_server, args=(colissithon_port,))
+    REST_thread = threading.Thread(target=start_REST_server, args=colissithon_port)
     rawdatas_thread = threading.Thread(target=start_tweets_consumer)
     pictures_thread = threading.Thread(target=start_pictures_consumer)
 
