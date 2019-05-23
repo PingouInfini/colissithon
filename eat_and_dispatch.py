@@ -9,29 +9,31 @@ from kafka import KafkaConsumer
 
 import send_colis as send_colis
 
-# with open(sys.argv[1], 'r') as file :
-#     param = yaml.load(file)
+# debug_level = os.environ["DEBUG_LEVEL"]
+#
+# if debug_level == "DEBUG":
+#     logging.basicConfig(level=logging.DEBUG)
+# elif debug_level == "INFO":
+#     logging.basicConfig(level=logging.INFO)
+# elif debug_level == "WARNING":
+#     logging.basicConfig(level=logging.WARNING)
+# elif debug_level == "ERROR":
+#     logging.basicConfig(level=logging.ERROR)
+# elif debug_level == "CRITICAL":
+#     logging.basicConfig(level=logging.CRITICAL)
+#
+# topic_from_tweethon = os.environ["FROM_TWEETHON"]
+# topic_from_comparathon = os.environ["FROM_COMPARATHON"]
 
-debug_level = os.environ["DEBUG_LEVEL"]
+# colissithon_port = os.environ["COLISSITHON_PORT"]
+# kafka_endpoint = str(os.environ["KAFKA_IP"]) + ":" + str(os.environ["KAFKA_PORT"])
 
-if debug_level == "DEBUG":
-    logging.basicConfig(level=logging.DEBUG)
-elif debug_level == "INFO":
-    logging.basicConfig(level=logging.INFO)
-elif debug_level == "WARNING":
-    logging.basicConfig(level=logging.WARNING)
-elif debug_level == "ERROR":
-    logging.basicConfig(level=logging.ERROR)
-elif debug_level == "CRITICAL":
-    logging.basicConfig(level=logging.CRITICAL)
+colissithon_port = 9876
+kafka_endpoint = "0.0.0.0:8092"
+topic_from_tweethon = "tweetopic"
+topic_from_comparathon = "topictures"
+logging.basicConfig(level=logging.INFO)
 
-topic_from_tweethon = os.environ["FROM_TWEETHON"]
-topic_from_comparathon = os.environ["FROM_COMPARATHON"]
-
-colissithon_port = os.environ["COLISSITHON_PORT"]
-kafka_endpoint = str(os.environ["KAFKA_IP"]) + ":" + str(os.environ["KAFKA_PORT"])
-# colissithon_port = 9876
-# kafka_endpoint = "192.168.0.13:8092"
 app = Flask(__name__)
 
 
@@ -105,7 +107,7 @@ def start_pictures_consumer():
 
 
 if __name__ == '__main__':
-    REST_thread = threading.Thread(target=start_REST_server, args=colissithon_port)
+    REST_thread = threading.Thread(target=start_REST_server, args=(colissithon_port,))
     rawdatas_thread = threading.Thread(target=start_tweets_consumer)
     pictures_thread = threading.Thread(target=start_pictures_consumer)
 
