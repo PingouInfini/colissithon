@@ -69,6 +69,7 @@ def create_mini_biographics():
 def create_location():
     colis_json = request.get_json()
     location_name = colis_json['locationName']
+    #coordonnées sous la forme "latitude, longitude"
     location_coord = colis_json['locationCoordinates']
     locationType = None
     location_id = send_colis.create_location(location_name, locationType, location_coord)
