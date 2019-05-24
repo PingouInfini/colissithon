@@ -1,6 +1,7 @@
 from src.items.biographics import biographics
+from src.items.location import location
 from src.services import biographics_service as bio_serv, connection_service as con_serv, rawDatas_service as raw_serv, \
-    relation_service as rel_serv
+    relation_service as rel_serv, location_service as location_serv
 
 
 # -*- coding: UTF-8 -*-
@@ -28,3 +29,10 @@ def link_tweet_to_bio(json_tweet, id_bio):
 def link_picture_to_bio(json_picture, id_bio):
     current_session, current_header = con_serv.authentification()
     raw_serv.rawdatas_from_ggimage(json_picture, id_bio, current_session, current_header)
+
+def create_location(locationName, locationType, locationCoordinates):
+    loc=location(locationName, locationType, locationCoordinates)
+    current_session, current_header = con_serv.authentification()
+    location_id = location_serv.create_dto_location(loc,current_session, current_header)
+    con_serv.close_connection(current_session)
+    return location_id

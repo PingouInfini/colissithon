@@ -29,7 +29,7 @@ import send_colis as send_colis
 # kafka_endpoint = str(os.environ["KAFKA_IP"]) + ":" + str(os.environ["KAFKA_PORT"])
 
 colissithon_port = 9876
-kafka_endpoint = "0.0.0.0:8092"
+kafka_endpoint = "192.168.0.13:8092"
 topic_from_tweethon = "tweethon_out"
 topic_from_comparathon = "comparathon_out"
 logging.basicConfig(level=logging.INFO)
@@ -56,7 +56,7 @@ def create_related_biographics():
 
 
 @app.route('/create_minibio', methods=['POST'])
-def prepare_mini_biographics():
+def create_mini_biographics():
     colis_json = request.get_json()
     first_name = colis_json['biographicsFirstName']
     name = colis_json['biographicsName']
@@ -65,6 +65,14 @@ def prepare_mini_biographics():
     bio_id = send_colis.create_new_biographics(first_name, name, picture, picture_type)
     return str(bio_id)
 
+@app.route('/create_location', methods=['POST'])
+def create_location():
+    colis_json = request.get_json()
+    location_name = colis_json['locationName']
+    location_coord=colis_json['locationCoordinates']
+    locationType = None
+    location_id = send_colis.create_location(location_name, locationType, location_coord)
+    return str(location_id)
 
 def start_REST_server(port):
     app.run(host='0.0.0.0', port=port)
@@ -85,6 +93,7 @@ def start_tweets_consumer():
         tweet_json = msg.value[0]
         bio_id = msg.value[1]
         logging.debug("Tweet associated to bio_Id n° : " + str(bio_id))
+        #print("bio_id "+bio_id)
         send_colis.link_tweet_to_bio(tweet_json, bio_id)
 
 
@@ -103,6 +112,7 @@ def start_pictures_consumer():
         picture_json = msg.value[0]
         bio_id = msg.value[1]
         logging.debug("Tweet associated to bio_Id n° : " + str(bio_id))
+        #print("bio_id "+bio_id)
         send_colis.link_picture_to_bio(picture_json, bio_id)
 
 
