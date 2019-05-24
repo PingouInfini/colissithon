@@ -30,8 +30,8 @@ import send_colis as send_colis
 
 colissithon_port = 9876
 kafka_endpoint = "0.0.0.0:8092"
-topic_from_tweethon = "tweetopic"
-topic_from_comparathon = "topictures"
+topic_from_tweethon = "tweethon_out"
+topic_from_comparathon = "comparathon_out"
 logging.basicConfig(level=logging.INFO)
 
 app = Flask(__name__)
