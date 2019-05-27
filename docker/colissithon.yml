@@ -10,7 +10,7 @@ services:
         environment:
             - INSIGHT_IP=192.168.0.30
             - INSIGHT_PORT=8080
-            - KAFKA_IP=192.168.0.50
+            - KAFKA_IP=192.168.0.40
             - KAFKA_PORT=8092
             - COLISSITHON_PORT=9876
             - FROM_TRAVELTHON=travelthon_out
@@ -21,4 +21,3 @@ services:
         - reach
 networks:
     reach : 
-        external: true

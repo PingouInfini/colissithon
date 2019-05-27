@@ -1,39 +1,32 @@
 import logging
 import os
 import threading
-from json import loads
-
 from flask import Flask
 from flask import request
+from json import loads
 from kafka import KafkaConsumer
 
 import send_colis as send_colis
 
-# debug_level = os.environ["DEBUG_LEVEL"]
-#
-# if debug_level == "DEBUG":
-#     logging.basicConfig(level=logging.DEBUG)
-# elif debug_level == "INFO":
-#     logging.basicConfig(level=logging.INFO)
-# elif debug_level == "WARNING":
-#     logging.basicConfig(level=logging.WARNING)
-# elif debug_level == "ERROR":
-#     logging.basicConfig(level=logging.ERROR)
-# elif debug_level == "CRITICAL":
-#     logging.basicConfig(level=logging.CRITICAL)
-#
-# topic_from_tweethon = os.environ["FROM_TWEETHON"]
-# topic_from_comparathon = os.environ["FROM_COMPARATHON"]
+debug_level = os.environ["DEBUG_LEVEL"]
 
-# colissithon_port = os.environ["COLISSITHON_PORT"]
-# kafka_endpoint = str(os.environ["KAFKA_IP"]) + ":" + str(os.environ["KAFKA_PORT"])
+if debug_level == "DEBUG":
+    logging.basicConfig(level=logging.DEBUG)
+elif debug_level == "INFO":
+    logging.basicConfig(level=logging.INFO)
+elif debug_level == "WARNING":
+    logging.basicConfig(level=logging.WARNING)
+elif debug_level == "ERROR":
+    logging.basicConfig(level=logging.ERROR)
+elif debug_level == "CRITICAL":
+    logging.basicConfig(level=logging.CRITICAL)
 
-colissithon_port = 9876
-kafka_endpoint = "192.168.0.13:8092"
-topic_from_tweethon = "tweethon_out"
-topic_from_comparathon = "comparathon_out"
-topic_from_travelthon="travelthon_out"
-logging.basicConfig(level=logging.INFO)
+topic_from_tweethon = os.environ["FROM_TWEETHON"]
+topic_from_comparathon = os.environ["FROM_COMPARATHON"]
+topic_from_travelthon = os.environ["FROM_TRAVELTHON"]
+
+colissithon_port = os.environ["COLISSITHON_PORT"]
+kafka_endpoint = str(os.environ["KAFKA_IP"]) + ":" + str(os.environ["KAFKA_PORT"])
 
 app = Flask(__name__)
 
@@ -66,18 +59,21 @@ def create_mini_biographics():
     bio_id = send_colis.create_new_biographics(first_name, name, picture, picture_type)
     return str(bio_id)
 
+
 @app.route('/create_location', methods=['POST'])
 def create_location():
     colis_json = request.get_json()
     location_name = colis_json['locationName']
-    #coordonnées sous la forme "latitude, longitude"
+    # coordonnées sous la forme "latitude, longitude"
     location_coord = colis_json['locationCoordinates']
     locationType = None
     location_id = send_colis.create_location(location_name, locationType, location_coord)
     return str(location_id)
 
+
 def start_REST_server(port):
     app.run(host='0.0.0.0', port=port)
+
 
 def start_travelthon_consummer():
     consumer = KafkaConsumer(
@@ -93,8 +89,9 @@ def start_travelthon_consummer():
         logging.debug('Consume message from ##travelthon_out')
         topic_json = msg.value
         bio_id = topic_json['idBio']
-        location_json=topic_json['location']
+        location_json = topic_json['location']
         send_colis.create_location_and_bind(location_json, bio_id)
+
 
 def start_tweets_consumer():
     consumer = KafkaConsumer(
@@ -111,7 +108,7 @@ def start_tweets_consumer():
         tweet_json = msg.value[0]
         bio_id = msg.value[1]
         logging.debug("Tweet associated to bio_Id n° : " + str(bio_id))
-        #print("bio_id "+bio_id)
+        # print("bio_id "+bio_id)
         send_colis.link_tweet_to_bio(tweet_json, bio_id)
 
 
@@ -130,7 +127,7 @@ def start_pictures_consumer():
         picture_json = msg.value[0]
         bio_id = msg.value[1]
         logging.debug("Tweet associated to bio_Id n° : " + str(bio_id))
-        #print("bio_id "+bio_id)
+        # print("bio_id "+bio_id)
         send_colis.link_picture_to_bio(picture_json, bio_id)
 
 
