@@ -21,7 +21,7 @@ def bind_bio_to_bio(twoBioIdsJson):
     current_session, current_header = con_serv.authentification()
     rel_serv.bind_object_to_biographics(candidate_bioId, bioId_to_bind, current_session, current_header)
 
-def bind_bio_to_bio(candidate_bioId, bioId_to_bind):
+def bind_idbio_to_idbio(candidate_bioId, bioId_to_bind):
     current_session, current_header = con_serv.authentification()
     rel_serv.bind_object_to_biographics(candidate_bioId, bioId_to_bind, current_session, current_header)
 
@@ -47,4 +47,4 @@ def create_location_and_bind(location_json, bio_id):
     location_coord = location_json['locationCoordinates']
     locationType = None
     location_id = create_location(location_name, locationType, location_coord)
-    bind_bio_to_bio(bio_id, location_id)
+    bind_idbio_to_idbio(bio_id, location_id)
