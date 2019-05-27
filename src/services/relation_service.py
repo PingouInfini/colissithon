@@ -7,4 +7,3 @@ def bind_object_to_biographics(biographics_id, target_ID, session, header_with_t
             "typeSource": "Biographics",
             "typeCible": "RawData"}
     post_response = session.post(url=relation_url, json=link, headers=header_with_token)
-    print(str(post_response) + "   : lien bio-rawdatas bien créé")
