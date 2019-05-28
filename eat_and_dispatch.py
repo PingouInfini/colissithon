@@ -1,12 +1,12 @@
 import logging
 import os
 import threading
+
+from src import custom_consumers
 from flask import Flask
 from flask import request
-from json import loads
-from kafka import KafkaConsumer
 
-import send_colis as send_colis
+from src import send_colis
 
 debug_level = os.environ["DEBUG_LEVEL"]
 
@@ -75,73 +75,17 @@ def start_REST_server(port):
     app.run(host='0.0.0.0', port=port)
 
 
-def start_travelthon_consummer():
-    consumer = KafkaConsumer(
-        topic_from_travelthon,
-        bootstrap_servers=[kafka_endpoint],
-        auto_offset_reset='earliest',
-        enable_auto_commit=True,
-        group_id='my-group',
-        value_deserializer=lambda x: loads(x.decode('utf-8'))
-    )
-    logging.info('Kafka Consumer for travelthon started')
-    for msg in consumer:
-        logging.debug('Consume message from ##travelthon_out')
-        topic_json = msg.value
-        bio_id = topic_json['idBio']
-        location_json = topic_json['location']
-        send_colis.create_location_and_bind(location_json, bio_id)
+def main():
+    REST_thread = threading.Thread(target=start_REST_server, args=(colissithon_port,))
 
+    threads = [REST_thread,
+               custom_consumers.pictures_consumer(),
+               custom_consumers.tweet_consumer()]
 
-def start_tweets_consumer():
-    consumer = KafkaConsumer(
-        topic_from_tweethon,
-        bootstrap_servers=[kafka_endpoint],
-        auto_offset_reset='earliest',
-        enable_auto_commit=True,
-        group_id='my-group',
-        value_deserializer=lambda x: loads(x.decode('utf-8'))
-    )
-    logging.info('Kafka Consumer for Tweethon started')
-    for msg in consumer:
-        logging.debug('Consume message from ##tweethon_out')
-        tweet_json = msg.value[0]
-        bio_id = msg.value[1]
-        logging.debug("Tweet associated to bio_Id n° : " + str(bio_id))
-        # print("bio_id "+bio_id)
-        send_colis.link_tweet_to_bio(tweet_json, bio_id)
-
-
-def start_pictures_consumer():
-    consumer = KafkaConsumer(
-        topic_from_comparathon,
-        bootstrap_servers=[kafka_endpoint],
-        auto_offset_reset='earliest',
-        enable_auto_commit=True,
-        group_id='my-group',
-        value_deserializer=lambda x: loads(x.decode('utf-8'))
-    )
-    logging.info('Kafka Consumer for Comparathon started')
-    for msg in consumer:
-        logging.debug('Consume message from ##comparathon_out')
-        picture_json = msg.value[0]
-        bio_id = msg.value[1]
-        logging.debug("Tweet associated to bio_Id n° : " + str(bio_id))
-        # print("bio_id "+bio_id)
-        send_colis.link_picture_to_bio(picture_json, bio_id)
+    for t in threads:
+        t.start()
 
 
 if __name__ == '__main__':
-    REST_thread = threading.Thread(target=start_REST_server, args=(colissithon_port,))
-    rawdatas_thread = threading.Thread(target=start_tweets_consumer)
-    pictures_thread = threading.Thread(target=start_pictures_consumer)
-    travelthon_thread = threading.Thread(target=start_travelthon_consummer)
+    main()
 
-    REST_thread.start()
-    logging.info('REST Thread started')
-    rawdatas_thread.start()
-    logging.info('Kafka tweethon_out Thread started')
-    pictures_thread.start()
-    logging.info('Kafka comparathon_out Thread started')
-    travelthon_thread.start()
-    logging.info('Kafka travelthon_out Thread started')
