@@ -13,11 +13,7 @@ services:
             - KAFKA_IP=192.168.0.40
             - KAFKA_PORT=8092
             - COLISSITHON_PORT=9876
-            - FROM_TRAVELTHON=travelthon_out
-            - FROM_COMPARATHON=comparathon_out
-            - FROM_TWEETHON=tweethon_out
+            - FROM_TRAVELTHON=travelthon
+            - FROM_COMPARATHON=comparathon
+            - FROM_TWEETHON=tweethon
             - DEBUG_LEVEL=INFO
-        networks:
-        - reach
-networks:
-    reach : 

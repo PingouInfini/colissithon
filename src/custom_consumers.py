@@ -1,17 +1,19 @@
+import json
 import logging
 import threading
-import json
 
 from kafka import KafkaConsumer
 
 from src import send_colis
+from src import variables
 
-topic_from_tweethon = os.environ["FROM_TWEETHON"]
-topic_from_comparathon = os.environ["FROM_COMPARATHON"]
-topic_from_travelthon = os.environ["FROM_TRAVELTHON"]
+topic_from_tweethon = variables.topic_from_tweethon
+topic_from_comparathon = variables.topic_from_comparathon
+topic_from_travelthon = variables.topic_from_travelthon
 
-colissithon_port = os.environ["COLISSITHON_PORT"]
-kafka_endpoint = str(os.environ["KAFKA_IP"]) + ":" + str(os.environ["KAFKA_PORT"])#
+colissithon_port = variables.colissithon_port
+kafka_endpoint = variables.kafka_endpoint
+
 
 class pictures_consumer(threading.Thread):
     def run(self):
@@ -20,15 +22,16 @@ class pictures_consumer(threading.Thread):
                                  auto_offset_reset='latest')
 
         consumer.subscribe([topic_from_comparathon])
-        logging.debug("Consume messages from topic :"+str(topic_from_comparathon))
+        logging.debug("Consume messages from topic :" + str(topic_from_comparathon))
+        logging.error("ABO")
         for msg in consumer:
-
             picture_json = msg.value[0]
             bio_id = msg.value[1]
-            logging.debug("Tweet associated to bio_Id n° : " + str(bio_id))
+            logging.error("Tweet associated to bio_Id n° : " + str(bio_id))
             send_colis.link_picture_to_bio(picture_json, bio_id)
 
         consumer.close()
+        logging.error("CLOSAIDE")
 
 
 class tweet_consumer(threading.Thread):
@@ -38,7 +41,7 @@ class tweet_consumer(threading.Thread):
                                  auto_offset_reset='latest')
 
         consumer.subscribe([topic_from_tweethon])
-        logging.debug("Consume messages from topic :"+str(topic_from_tweethon))
+        logging.debug("Consume messages from topic :" + str(topic_from_tweethon))
         for msg in consumer:
             tweet_json = msg.value[0]
             bio_id = msg.value[1]

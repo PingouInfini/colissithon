@@ -1,14 +1,13 @@
 import logging
-import os
 import threading
 
-from src import custom_consumers
 from flask import Flask
 from flask import request
 
-from src import send_colis
+from src import custom_consumers
+from src import send_colis, variables
 
-debug_level = os.environ["DEBUG_LEVEL"]
+debug_level = variables.debug_level
 
 if debug_level == "DEBUG":
     logging.basicConfig(level=logging.DEBUG)
@@ -21,12 +20,7 @@ elif debug_level == "ERROR":
 elif debug_level == "CRITICAL":
     logging.basicConfig(level=logging.CRITICAL)
 
-topic_from_tweethon = os.environ["FROM_TWEETHON"]
-topic_from_comparathon = os.environ["FROM_COMPARATHON"]
-topic_from_travelthon = os.environ["FROM_TRAVELTHON"]
-
-colissithon_port = os.environ["COLISSITHON_PORT"]
-kafka_endpoint = str(os.environ["KAFKA_IP"]) + ":" + str(os.environ["KAFKA_PORT"])
+colissithon_port = variables.colissithon_port
 
 app = Flask(__name__)
 
