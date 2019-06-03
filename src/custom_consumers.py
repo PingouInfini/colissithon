@@ -23,15 +23,15 @@ class pictures_consumer(threading.Thread):
 
         consumer.subscribe([topic_from_comparathon])
         logging.debug("Consume messages from topic :" + str(topic_from_comparathon))
-        logging.error("ABO")
+
         for msg in consumer:
             picture_json = msg.value[0]
             bio_id = msg.value[1]
-            logging.error("Tweet associated to bio_Id n° : " + str(bio_id))
+            logging.debug("Picture associated to bio_Id n° : " + str(bio_id))
             send_colis.link_picture_to_bio(picture_json, bio_id)
 
         consumer.close()
-        logging.error("CLOSAIDE")
+
 
 
 class tweet_consumer(threading.Thread):
