@@ -8,12 +8,12 @@ services:
         ports:
             - "9876:9876"
         environment:
-            - INSIGHT_IP=192.168.0.30
+            - INSIGHT_IP=insight-ip
             - INSIGHT_PORT=8080
-            - KAFKA_IP=192.168.0.40
+            - KAFKA_IP=kafka-ip
             - KAFKA_PORT=8092
             - COLISSITHON_PORT=9876
-            - FROM_TRAVELTHON=travelthon
-            - FROM_COMPARATHON=comparathon
-            - FROM_TWEETHON=tweethon
+            - FROM_TRAVELTHON=locToColissi
+            - FROM_COMPARATHON=ggimgToColissi
+            - FROM_TWEETHON=tweetToColissi
             - DEBUG_LEVEL=INFO
