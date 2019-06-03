@@ -8,9 +8,9 @@ services:
         ports:
             - "9876:9876"
         environment:
-            - INSIGHT_IP=insight-ip
+            - INSIGHT_IP=192.168.0.31
             - INSIGHT_PORT=8080
-            - KAFKA_IP=kafka-ip
+            - KAFKA_IP=192.168.0.31
             - KAFKA_PORT=8092
             - COLISSITHON_PORT=9876
             - FROM_TRAVELTHON=locToColissi
