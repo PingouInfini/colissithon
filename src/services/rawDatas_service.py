@@ -13,8 +13,9 @@ resolved_locations = {}
 
 def rawdatas_from_ggimage(json_picture, biographics_id, session, header):
     # Extract picture and metadatas from json
-    rawdata_from_picture = raw_data(None, None, None, None, None, None, None, str(time.time()))
+    rawdata_from_picture = raw_data(None, None, None, None, None, None, None, None, str(time.time()))
     rawdata_from_picture.rawDataName = json_picture['name']
+    rawdata_from_picture.rawDataSubType = "bio-img" # permet l'affichage dans le panel gg img de l'idcard d'insight
     rawdata_from_picture.rawDataSourceUri = "Google Images"
     rawdata_from_picture.rawDataDataContentType = json_picture['extension']
     rawdata_from_picture.rawDataData = json_picture['image']
@@ -24,7 +25,7 @@ def rawdatas_from_ggimage(json_picture, biographics_id, session, header):
 def rawdatas_from_tweet(json_tweet, biographics_id, session, header):
     # 1- transform tweet into rawData (condition for presence of picture(s))
     try:
-        rawdata_from_tweet = raw_data(None, None, None, None, None, None, None, str(time.time()))
+        rawdata_from_tweet = raw_data(None, None, None, None, None, None, None, None, str(time.time()))
         rawdata_from_tweet.rawDataName = json_tweet['user']['name'] + " " + json_tweet['created_at']
         rawdata_from_tweet.rawDataSourceUri = json_tweet['source']
         rawdata_from_tweet.rawDataSourceType = "TWITTER"
@@ -102,8 +103,13 @@ def send_rawDatas(rawData, biographics_id, session, header_with_token):
         data.update({"rawDataData": rawData.rawDataData,
                      "rawDataDataContentType": rawData.rawDataDataContentType})
 
+    if not (rawData.rawDataSubType is None):
+        data.update({"rawDataSubType": rawData.rawDataSubType})
+
     if not (rawData.rawDataCreationDate is None):
         data.update({"rawDataCreationDate": rawData.rawDataCreationDate})
+
+    print(data)
 
     post_response = session.post(url=rawdata_url, json=data, headers=header_with_token)
 
