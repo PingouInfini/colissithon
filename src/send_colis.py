@@ -1,3 +1,4 @@
+import logging
 from src.items.biographics import biographics
 from src.items.location import location
 from src.services import biographics_service as bio_serv, connection_service as con_serv, rawDatas_service as raw_serv, \
@@ -44,10 +45,7 @@ def create_location(locationName, locationType, locationCoordinates):
     return location_id
 
 
-def create_location_and_bind(location_json, bio_id):
-    location_name = location_json['locationName']
-    # coordonnées sous la forme "latitude, longitude"
-    location_coord = location_json['locationCoordinates']
+def create_location_and_bind(bio_id,location_name, location_coord):
     locationType = None
     location_id = create_location(location_name, locationType, location_coord)
     bind_idbio_to_idbio(bio_id, location_id)

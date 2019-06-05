@@ -49,3 +49,22 @@ class tweet_consumer(threading.Thread):
             send_colis.link_tweet_to_bio(tweet_json, bio_id)
 
         consumer.close()
+
+class location_consumer(threading.Thread):
+    def run(self):
+        consumer = KafkaConsumer(bootstrap_servers=kafka_endpoint,
+                                 value_deserializer=lambda x: json.loads(x.decode('utf-8')),
+                                 auto_offset_reset='latest')
+
+        consumer.subscribe([topic_from_travelthon])
+        logging.debug("Consume messages from topic :" + str(topic_from_travelthon))
+        for msg in consumer:
+            logging.info("New message from topic :" + str(topic_from_travelthon))
+            location_json =msg.value
+            bio_id = location_json['idBio']
+            location_name = location_json['locationName']
+            location_coord = location_json ['locationCoordinates']
+            logging.debug("Location associated to bio_Id n° : " + str(bio_id))
+            send_colis.create_location_and_bind(bio_id, location_name, location_coord)
+
+        consumer.close()

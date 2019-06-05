@@ -40,7 +40,8 @@ def create_candidate_biographics():
 @app.route('/bind_bio', methods=['POST'])
 def create_related_biographics():
     logging.info('bind_bio service called')
-    send_colis.bind_bio_to_bio(request.get_json())
+    twoBioIdsJson=request.get_json()
+    send_colis.bind_bio_to_bio(twoBioIdsJson)
 
 
 @app.route('/create_minibio', methods=['POST'])
@@ -74,7 +75,7 @@ def main():
 
     threads = [REST_thread,
                custom_consumers.pictures_consumer(),
-               custom_consumers.tweet_consumer()]
+               custom_consumers.location_consumer()]
 
     for t in threads:
         t.start()
