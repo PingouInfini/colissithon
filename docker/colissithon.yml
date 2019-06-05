@@ -6,14 +6,14 @@ services:
         image: reachhubcorp/colissithon:latest
         container_name: colissithon
         ports:
-            - "9876:9876"
+        - "9876:9876"
         environment:
-            - INSIGHT_IP=192.168.0.31
-            - INSIGHT_PORT=8080
-            - KAFKA_IP=192.168.0.31
-            - KAFKA_PORT=8092
-            - COLISSITHON_PORT=9876
-            - FROM_TRAVELTHON=locToColissi
-            - FROM_COMPARATHON=ggimgToColissi
-            - FROM_TWEETHON=tweetToColissi
-            - DEBUG_LEVEL=INFO
+          INSIGHT_IP: "${ipinsight}"
+          INSIGHT_PORT: 8080
+          KAFKA_IP: "${ipkafka}"
+          KAFKA_PORT: 8092
+          COLISSITHON_PORT: 9876
+          FROM_TRAVELTHON: locToColissi
+          FROM_COMPARATHON: ggimgToColissi
+          FROM_TWEETHON: tweetToColissi
+          DEBUG_LEVEL: INFO
