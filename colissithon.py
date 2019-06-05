@@ -42,6 +42,7 @@ def create_related_biographics():
     logging.info('bind_bio service called')
     twoBioIdsJson=request.get_json()
     send_colis.bind_bio_to_bio(twoBioIdsJson)
+    return "200"
 
 
 @app.route('/create_minibio', methods=['POST'])
