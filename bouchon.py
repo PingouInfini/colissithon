@@ -20,12 +20,12 @@ def main():
 
         logging.info(" Démarrage du bouchon ")
 
-        producer = KafkaProducer(bootstrap_servers='192.168.0.13:8092', value_serializer=lambda v: json.dumps(v).encode('utf-8'))
+        producer = KafkaProducer(bootstrap_servers='192.168.0.31:8092', value_serializer=lambda v: json.dumps(v).encode('utf-8'))
         tab=[
-            {'location': {'locationName' : 'Marseille', 'locationCoordinates': '43.296482,5.36978'}, 'idBio': '4096' }
+            {'idBio': '4096', 'locationName' : 'Marseille', 'locationCoordinates': '43.296482,5.36978'}
         ]
         for i in range(len(tab)):
-            producer.send('travelthon_out', value=tab[i])
+            producer.send('locToColissi', value=tab[i])
             sleep(0.5)
 
     except Exception as e:
