@@ -118,8 +118,6 @@ def send_rawDatas(rawData, biographics_id, session, header_with_token):
     if not (rawData.rawDataCreationDate is None):
         data.update({"rawDataCreationDate": rawData.rawDataCreationDate})
 
-    print(data)
-
     post_response = session.post(url=rawdata_url, json=data, headers=header_with_token)
 
     if post_response.status_code == 201:
