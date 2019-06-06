@@ -32,6 +32,11 @@ def link_tweet_to_bio(json_tweet, id_bio):
     raw_serv.rawdatas_from_tweet(json_tweet, id_bio, current_session, current_header)
 
 
+def link_media_to_bio(json_picture, bio_id):
+    current_session, current_header = con_serv.authentification()
+    raw_serv.rawdatas_from_media(json_picture, bio_id, current_session, current_header)
+
+
 def link_picture_to_bio(json_picture, id_bio):
     current_session, current_header = con_serv.authentification()
     raw_serv.rawdatas_from_ggimage(json_picture, id_bio, current_session, current_header)
@@ -45,7 +50,7 @@ def create_location(locationName, locationType, locationCoordinates):
     return location_id
 
 
-def create_location_and_bind(bio_id,location_name, location_coord):
+def create_location_and_bind(bio_id, location_name, location_coord):
     locationType = None
     location_id = create_location(location_name, locationType, location_coord)
     bind_idbio_to_idbio(bio_id, location_id)

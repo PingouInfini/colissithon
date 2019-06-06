@@ -14,6 +14,7 @@ kafka_endpoint = str(os.environ["KAFKA_IP"]) + ":" + str(os.environ["KAFKA_PORT"
 topic_from_tweethon = os.environ["FROM_TWEETHON"]
 topic_from_comparathon = os.environ["FROM_COMPARATHON"]
 topic_from_travelthon = os.environ["FROM_TRAVELTHON"]
+topic_from_croustibatch = os.environ["FROM_CROUSTIBATCH"]
 
 # COLISSITHON
 colissithon_port = os.environ["COLISSITHON_PORT"]

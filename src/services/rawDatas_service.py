@@ -12,7 +12,7 @@ resolved_locations = {}
 
 
 def rawdatas_from_ggimage(json_picture, biographics_id, session, header):
-    # Extract picture and metadatas from json
+    # Extract picture and metadatas from json and prepare bio-img rawdata
     rawdata_from_picture = raw_data(None, None, None, None, None, None, None, None, str(time.time()))
     rawdata_from_picture.rawDataName = json_picture['name']
     rawdata_from_picture.rawDataSubType = "bio-img" # permet l'affichage dans le panel gg img de l'idcard d'insight
@@ -21,6 +21,15 @@ def rawdatas_from_ggimage(json_picture, biographics_id, session, header):
     rawdata_from_picture.rawDataData = json_picture['image']
     send_rawDatas(rawdata_from_picture, biographics_id, session, header)
 
+def rawdatas_from_media(json_picture, biographics_id, session, header) :
+    # Extract picture and metadatas from json and prepare media-img rawdata
+    rawdata_from_picture = raw_data(None, None, None, None, None, None, None, None, str(time.time()))
+    rawdata_from_picture.rawDataName = json_picture['name']
+    rawdata_from_picture.rawDataSubType = "media-img" # permet l'affichage dans le panel media de l'idcard d'insight
+    rawdata_from_picture.rawDataSourceUri = "Twitter Account"
+    rawdata_from_picture.rawDataDataContentType = json_picture['extension']
+    rawdata_from_picture.rawDataData = json_picture['image']
+    send_rawDatas(rawdata_from_picture, biographics_id, session, header)
 
 def rawdatas_from_tweet(json_tweet, biographics_id, session, header):
     # 1- transform tweet into rawData (condition for presence of picture(s))
