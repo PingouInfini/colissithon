@@ -16,4 +16,5 @@ services:
           FROM_TRAVELTHON: locToColissi
           FROM_COMPARATHON: ggimgToColissi
           FROM_TWEETHON: tweetToColissi
+          FROM_CROUSTIBATCH: mediaToColissi
           DEBUG_LEVEL: INFO
