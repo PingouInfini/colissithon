@@ -3,6 +3,7 @@ from src.items.biographics import biographics
 from src.items.location import location
 from src.services import biographics_service as bio_serv, connection_service as con_serv, rawDatas_service as raw_serv, \
     relation_service as rel_serv, location_service as location_serv
+import json
 
 
 # -*- coding: UTF-8 -*-
@@ -54,3 +55,11 @@ def create_location_and_bind(bio_id, location_name, location_coord):
     locationType = None
     location_id = create_location(location_name, locationType, location_coord)
     bind_idbio_to_idbio(bio_id, location_id)
+
+def get_dico():
+    tab=[
+        {'sport': [{'rugby':'3'}, {'football':'8'}, {'tennis':'6'}]},
+        {'musique': [{'jazz':'2'}, {'rap':'8'}, {'rock':'4'}]}
+    ]
+    jsonTab = json.dumps(tab)
+    return jsonTab
