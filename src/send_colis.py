@@ -63,3 +63,9 @@ def get_dico():
     ]
     jsonTab = json.dumps(tab)
     return jsonTab
+
+def create_raw_data_hit(bio_id, msg):
+    current_session, current_header = con_serv.authentification()
+    raw_serv.rawdatas_from_hit(msg, bio_id, current_session, current_header)
+
+

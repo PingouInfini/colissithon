@@ -14,7 +14,8 @@ services:
           KAFKA_PORT: 8092
           COLISSITHON_PORT: 9876
           FROM_TRAVELTHON: locToColissi
-          FROM_COMPARATHON: ggimgToColissi
+          FROM_COMPARATHON_PICTURES: ggimgToColissi
           FROM_TWEETHON: tweetToColissi
           FROM_CROUSTIBATCH: mediaToColissi
+          FROM_COMPARATHON_HIT: comparaToColissi
           DEBUG_LEVEL: INFO
