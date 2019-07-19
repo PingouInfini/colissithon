@@ -90,6 +90,7 @@ class location_consumer(threading.Thread):
 
         consumer.close()
 
+
 class hit_consumer(threading.Thread):
     def run(self):
         consumer = KafkaConsumer(bootstrap_servers=kafka_endpoint,
@@ -101,9 +102,8 @@ class hit_consumer(threading.Thread):
         for msg in consumer:
             logging.info("New message from topic :" + str(topic_from_comparathon_hit))
             msg = msg.value
-            bio_id = msg['bio_id']
-            msg = msg['msg']
+            bio_id = msg['biographics'].get('idBio')
             logging.debug("Location associated to bio_Id n° : " + str(bio_id))
-            send_colis.create_raw_data_hit(bio_id, msg)
+            send_colis.create_raw_data_url(msg)
 
         consumer.close()

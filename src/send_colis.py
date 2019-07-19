@@ -56,6 +56,7 @@ def create_location_and_bind(bio_id, location_name, location_coord):
     location_id = create_location(location_name, locationType, location_coord)
     bind_idbio_to_idbio(bio_id, location_id)
 
+
 def get_dico():
     tab=[
         {'sport': [{'rugby':'3'}, {'football':'8'}, {'tennis':'6'}]},
@@ -64,8 +65,10 @@ def get_dico():
     jsonTab = json.dumps(tab)
     return jsonTab
 
-def create_raw_data_hit(bio_id, msg):
+
+def create_raw_data_url (msg):
+    # check si le rawdata existe, créer ou mettre à jour envoyer à Coli le rawdata
     current_session, current_header = con_serv.authentification()
-    raw_serv.rawdatas_from_hit(msg, bio_id, current_session, current_header)
+    raw_serv.rawdatas_from_url(msg, current_session, current_header)
 
 

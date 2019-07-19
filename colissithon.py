@@ -66,6 +66,7 @@ def create_location():
     location_id = send_colis.create_location(location_name, locationType, location_coord)
     return str(location_id)
 
+
 @app.route('/dictionnaire', methods=['GET'])
 def create_dictionnaire():
     logging.info('dico service called')
