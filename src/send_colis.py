@@ -4,6 +4,7 @@ from src.items.location import location
 from src.services import biographics_service as bio_serv, connection_service as con_serv, rawDatas_service as raw_serv, \
     relation_service as rel_serv, location_service as location_serv
 import json
+from .Entities import Entities
 
 
 # -*- coding: UTF-8 -*-
@@ -17,15 +18,12 @@ def create_new_biographics(first_name, name, picture, picture_type):
 
 
 def bind_bio_to_bio(twoBioIdsJson):
-    candidate_bioId = twoBioIdsJson['candidateBioId']
-    bioId_to_bind = twoBioIdsJson['relationBioId']
-    current_session, current_header = con_serv.authentification()
-    rel_serv.bind_object_to_biographics(candidate_bioId, bioId_to_bind, current_session, current_header)
+    bind_idbio_to_idbio(twoBioIdsJson['candidateBioId'], twoBioIdsJson['relationBioId'])
 
 
 def bind_idbio_to_idbio(candidate_bioId, bioId_to_bind):
     current_session, current_header = con_serv.authentification()
-    rel_serv.bind_object_to_biographics(candidate_bioId, bioId_to_bind, current_session, current_header)
+    rel_serv.bind_object_to_object(candidate_bioId, bioId_to_bind, Entities.Biographics, Entities.Rawdata, current_session, current_header)
 
 
 def link_tweet_to_bio(json_tweet, id_bio):
@@ -38,9 +36,9 @@ def link_media_to_bio(json_picture, bio_id):
     raw_serv.rawdatas_from_media(json_picture, bio_id, current_session, current_header)
 
 
-def link_picture_to_bio(json_picture, id_bio):
+def link_picture_to_bio(json_picture, id_bio, rawdata_url_name):
     current_session, current_header = con_serv.authentification()
-    raw_serv.rawdatas_from_ggimage(json_picture, id_bio, current_session, current_header)
+    raw_serv.rawdatas_from_ggimage(json_picture, id_bio, rawdata_url_name, current_session, current_header)
 
 
 def create_location(locationName, locationType, locationCoordinates):

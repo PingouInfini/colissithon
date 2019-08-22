@@ -2,17 +2,19 @@ import os
 
 # SERVEUR INSIGHT
 # INSIGHT_URL = "http://" + str(os.environ["INSIGHT_IP"]) + ":" + str(os.environ["INSIGHT_PORT"])
-INSIGHT_URL = "http://" + "192.168.0.105" + ":" + "8080"
+INSIGHT_URL = "http://" + "192.168.0.2" + ":" + "8080"
 authentication_url = INSIGHT_URL + "/api/authentication"
 account_url = INSIGHT_URL + "/api/account"
 biographics_url = INSIGHT_URL + "/api/biographics/"
 location_url = INSIGHT_URL + "/api/locations/"
 rawdata_url = INSIGHT_URL + "/api/raw-data"
+search_rawdata_url = INSIGHT_URL + "/api/_search/raw-data"
 relation_url = INSIGHT_URL + "/api/graph/relation"
+
 
 # KAFKA
 # kafka_endpoint = str(os.environ["KAFKA_IP"]) + ":" + str(os.environ["KAFKA_PORT"])
-kafka_endpoint = "192.168.0.10" + ":" + "8092"
+kafka_endpoint = "192.168.0.9" + ":" + "8092"
 
 # topic_from_tweethon = os.environ["FROM_TWEETHON"]
 # topic_from_comparathon_pictures = os.environ["FROM_COMPARATHON_PICTURES"]

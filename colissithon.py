@@ -68,7 +68,7 @@ def create_location():
 
 
 @app.route('/dictionnaire', methods=['GET'])
-def create_dictionnaire():
+def get_dictionnaire():
     logging.info('dico service called')
     dico = send_colis.get_dico()
     return dico
@@ -84,6 +84,7 @@ def main():
     threads = [REST_thread,
                custom_consumers.pictures_consumer(),
                custom_consumers.location_consumer(),
+               custom_consumers.hit_consumer(),
                custom_consumers.media_from_tweet_consumer()]
 
     for t in threads:

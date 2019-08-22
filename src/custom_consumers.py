@@ -30,11 +30,11 @@ class pictures_consumer(threading.Thread):
         for msg in consumer:
             picture_json = msg.value[0]
             bio_id = msg.value[1]
+            rawdata_url_name = msg.value[2]
             logging.debug("Picture associated to bio_Id n° : " + str(bio_id))
-            send_colis.link_picture_to_bio(picture_json, bio_id)
+            send_colis.link_picture_to_bio(picture_json, bio_id, rawdata_url_name)
 
         consumer.close()
-
 
 
 class tweet_consumer(threading.Thread):
@@ -54,6 +54,7 @@ class tweet_consumer(threading.Thread):
 
         consumer.close()
 
+
 class media_from_tweet_consumer(threading.Thread):
     def run(self):
         consumer = KafkaConsumer(bootstrap_servers=kafka_endpoint,
@@ -71,6 +72,7 @@ class media_from_tweet_consumer(threading.Thread):
 
         consumer.close()
 
+
 class location_consumer(threading.Thread):
     def run(self):
         consumer = KafkaConsumer(bootstrap_servers=kafka_endpoint,
@@ -84,7 +86,7 @@ class location_consumer(threading.Thread):
             location_json =msg.value
             bio_id = location_json['idBio']
             location_name = location_json['locationName']
-            location_coord = location_json ['locationCoordinates']
+            location_coord = location_json['locationCoordinates']
             logging.debug("Location associated to bio_Id n° : " + str(bio_id))
             send_colis.create_location_and_bind(bio_id, location_name, location_coord)
 
@@ -102,7 +104,7 @@ class hit_consumer(threading.Thread):
         for msg in consumer:
             logging.info("New message from topic :" + str(topic_from_comparathon_hit))
             msg = msg.value
-            bio_id = msg['biographics'].get('idBio')
+            bio_id = msg[0]
             logging.debug("Location associated to bio_Id n° : " + str(bio_id))
             send_colis.create_raw_data_url(msg)
 

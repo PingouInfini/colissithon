@@ -1,48 +1,55 @@
 import base64
 import json
 import time
+import uuid
 
 import requests
 
+from src.Entities import Entities
 from src.items.raw_data import raw_data
 from src.services import relation_service
-from src.variables import rawdata_url
+from src.variables import rawdata_url, search_rawdata_url
 
 resolved_locations = {}
 
 
-def rawdatas_from_ggimage(json_picture, biographics_id, session, header):
+def rawdatas_from_ggimage(json_picture, biographics_id, rawdata_url_name, session, header):
     # Extract picture and metadatas from json and prepare bio-img rawdata
     rawdata_from_picture = raw_data(None, None, None, None, None, None, None, None, str(time.time()))
     rawdata_from_picture.rawDataName = json_picture['name']
-    rawdata_from_picture.rawDataSubType = "bio-img" # permet l'affichage dans le panel gg img de l'idcard d'insight
+    rawdata_from_picture.rawDataSubType = "bio-img"  # permet l'affichage dans le panel gg img de l'idcard d'insight
     rawdata_from_picture.rawDataSourceUri = "Google Images"
     rawdata_from_picture.rawDataDataContentType = json_picture['extension']
     rawdata_from_picture.rawDataData = json_picture['image']
-    send_rawDatas(rawdata_from_picture, biographics_id, session, header)
+    rawdata_from_picture.rawDataContent = rawdata_url_name
+    create_rawdata_and_link_to_entity(rawdata_from_picture, rawdata_url_name, Entities.Rawdata, Entities.Rawdata,
+                                      session, header)
 
 
 def rawdatas_from_media(json_picture, biographics_id, session, header) :
     # Extract picture and metadatas from json and prepare media-img rawdata
     rawdata_from_picture = raw_data(None, None, None, None, None, None, None, None, str(time.time()))
     rawdata_from_picture.rawDataName = json_picture['name']
-    rawdata_from_picture.rawDataSubType = "media-img" # permet l'affichage dans le panel media de l'idcard d'insight
+    rawdata_from_picture.rawDataSubType = "media-img"  # permet l'affichage dans le panel media de l'idcard d'insight
     rawdata_from_picture.rawDataSourceUri = "Twitter Account"
     rawdata_from_picture.rawDataDataContentType = json_picture['extension']
     rawdata_from_picture.rawDataData = json_picture['image']
-    send_rawDatas(rawdata_from_picture, biographics_id, session, header)
+    create_rawdata_and_link_to_entity(rawdata_from_picture, biographics_id, Entities.Rawdata, Entities.Biographics,
+                                      session, header)
 
 
 def rawdatas_from_url(msg, session, header) :
     # Extract metadatas from hit
     rawdata_from_url = raw_data(None, None, None, None, None, None, None, None, str(time.time()))
-    rawdata_from_url.rawDataName = "url"
-    rawdata_from_url.rawDataContent = msg
+    rawdata_from_url.rawDataName = msg[1]  # rawdata_url_name
+    rawdata_from_url.rawDataSubType = "url"
+    rawdata_from_url.rawDataContent =  str(msg[2])
     # rawdata_from_picture.rawDataDataContentType = json_picture['extension']
     # rawdata_from_picture.rawDataData = json_picture['image']
     # rawdata_from_picture.rawDataContent
-    bio_id = msg['biographics'].get('idBio')
-    send_rawDatas(rawdata_from_url, bio_id, session, header)
+    bio_id = msg[0]
+    create_rawdata_and_link_to_entity(rawdata_from_url, bio_id, Entities.Rawdata, Entities.Biographics, session, header)
+    find_unlinked_rawdata_from_gg_image(msg[1], msg[0], Entities.Rawdata, Entities.Rawdata, session, header)
 
 
 def rawdatas_from_tweet(json_tweet, biographics_id, session, header):
@@ -71,7 +78,8 @@ def rawdatas_from_tweet(json_tweet, biographics_id, session, header):
         except:
             pass
 
-        send_rawDatas(rawdata_from_tweet, biographics_id, session, header)
+        create_rawdata_and_link_to_entity(rawdata_from_tweet, biographics_id, Entities.Rawdata, Entities.Biographics,
+                                         session, header)
 
     except:
         raise ValueError("PROBLEM DURING TWEET DATA'S EXTRACTION")
@@ -105,8 +113,7 @@ def geodecode(location):
 
     return loc.latitude, loc.longitude
 
-
-def send_rawDatas(rawData, biographics_id, session, header_with_token):
+def create_rawDatas(rawData, session, header_with_token):
     data = {
         "rawDataName": rawData.rawDataName,
     }
@@ -134,8 +141,32 @@ def send_rawDatas(rawData, biographics_id, session, header_with_token):
 
     post_response = session.post(url=rawdata_url, json=data, headers=header_with_token)
 
-    if post_response.status_code == 201:
-        data = json.loads(post_response.content)
-        target_ID = data["externalId"]
-        relation_service.bind_object_to_biographics(biographics_id, target_ID, session, header_with_token)
-        return target_ID
+    return post_response
+
+
+def create_rawdata_and_link_to_entity(rawdata_to_create_id, entity_target, type_source, type_cible, session, header_with_token):
+    get_rawdata_response = ''
+    post_response_create_rawdata = create_rawDatas(rawdata_to_create_id, session, header_with_token)
+    if type_cible == Entities.Rawdata:
+        url_get_rawdata_by_dataname = search_rawdata_url +"?page=-1&query="+entity_target+"&size=20&sort=id,asc"
+        get_rawdata_response = session.get(url=url_get_rawdata_by_dataname, headers=header_with_token)
+    if post_response_create_rawdata.status_code == 201 or get_rawdata_response.status_code == 200:
+        if get_rawdata_response:
+            entity_target = json.loads((get_rawdata_response.content).decode("utf-8"))[0]["externalId"]
+        data = json.loads(post_response_create_rawdata.content)
+        rawdata_created_external_id = data["externalId"]
+        relation_service.bind_object_to_object(entity_target, rawdata_created_external_id,  type_source, type_cible,
+        session, header_with_token)
+
+        return rawdata_created_external_id
+
+
+def find_unlinked_rawdata_from_gg_image(rawdata_url_name, rawdata_url_id, type_source, type_cible, session, header_with_token):
+    # url_get_rawdata_by_dataname = search_rawdata_url +"?page=0&query="+rawdata_url_name+"&size=20&sort=id,asc"
+    # get_rawdata_response = session.get(url=url_get_rawdata_by_dataname, headers=header_with_token)
+    # data = json.loads(get_rawdata_response.content)
+    # for rawdata in data:
+    #     if rawdata["rawDataContent"] == rawdata_url_name:
+    #         relation_service.bind_object_to_object(rawdata_url_id, rawdata["externalId"],  type_source, type_cible,
+    #                                                session, header_with_token)
+    return True
