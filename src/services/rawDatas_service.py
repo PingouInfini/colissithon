@@ -113,6 +113,7 @@ def geodecode(location):
 
     return loc.latitude, loc.longitude
 
+
 def create_rawDatas(rawData, session, header_with_token):
     data = {
         "rawDataName": rawData.rawDataName,
@@ -138,6 +139,8 @@ def create_rawDatas(rawData, session, header_with_token):
 
     if not (rawData.rawDataCreationDate is None):
         data.update({"rawDataCreationDate": rawData.rawDataCreationDate})
+
+    ## TODO ajouter ligne ScoreDTO
 
     post_response = session.post(url=rawdata_url, json=data, headers=header_with_token)
 
