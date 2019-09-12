@@ -1,10 +1,14 @@
 import logging
+
+import requests
+
 from src.items.biographics import biographics
 from src.items.location import location
 from src.services import biographics_service as bio_serv, connection_service as con_serv, rawDatas_service as raw_serv, \
     relation_service as rel_serv, location_service as location_serv
 import json
 from .Entities import Entities
+from src.variables import dictionary_url
 
 
 # -*- coding: UTF-8 -*-
@@ -55,12 +59,26 @@ def create_location_and_bind(bio_id, location_name, location_coord):
     bind_idbio_to_idbio(bio_id, location_id)
 
 
-def get_dico():
-    # tab=[
-    #     {'sport': [{'rugby':'3'}, {'football':'8'}, {'tennis':'6'}]},
-    #     {'musique': [{'jazz':'2'}, {'rap':'8'}, {'rock':'4'}]}
-    # ]
+def get_dico(idDictionary):
 
+    current_session, current_header = con_serv.authentification()
+    basic_get_response = current_session.get(url=dictionary_url+idDictionary,  headers=current_header)
+    if basic_get_response.ok:
+        j_data = json.loads(basic_get_response.content.decode('utf-8'))
+    else:
+        # If response code is not ok (200), print the resulting http error code with description
+        return mockDico()
+
+    return j_data
+
+
+def create_raw_data_url(msg):
+    # check si le rawdata existe, créer ou mettre à jour envoyer à Coli le rawdata
+    current_session, current_header = con_serv.authentification()
+    raw_serv.rawdatas_from_url(msg, current_session, current_header)
+
+
+def mockDico():
     tab = {
         "theme": [
             {
@@ -143,13 +161,6 @@ def get_dico():
             }
         ]
     }
+
     jsonTab = json.dumps(tab)
     return jsonTab
-
-
-def create_raw_data_url (msg):
-    # check si le rawdata existe, créer ou mettre à jour envoyer à Coli le rawdata
-    current_session, current_header = con_serv.authentification()
-    raw_serv.rawdatas_from_url(msg, current_session, current_header)
-
-

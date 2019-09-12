@@ -67,10 +67,10 @@ def create_location():
     return str(location_id)
 
 
-@app.route('/dictionnaire', methods=['GET'])
-def get_dictionnaire():
+@app.route('/dictionary/<string:idDictionary>', methods=['GET'])
+def get_dictionnaire(idDictionary):
     logging.info('dico service called')
-    dico = send_colis.get_dico()
+    dico = send_colis.get_dico(idDictionary)
     return dico
 
 
