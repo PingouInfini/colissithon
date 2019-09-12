@@ -56,10 +56,93 @@ def create_location_and_bind(bio_id, location_name, location_coord):
 
 
 def get_dico():
-    tab=[
-        {'sport': [{'rugby':'3'}, {'football':'8'}, {'tennis':'6'}]},
-        {'musique': [{'jazz':'2'}, {'rap':'8'}, {'rock':'4'}]}
-    ]
+    # tab=[
+    #     {'sport': [{'rugby':'3'}, {'football':'8'}, {'tennis':'6'}]},
+    #     {'musique': [{'jazz':'2'}, {'rap':'8'}, {'rock':'4'}]}
+    # ]
+
+    tab = {
+        "theme": [
+            {
+                "name": "terrorisme",
+                "motclef":
+                    [
+                        {
+                            "clef": "rugby",
+                            "pond": "3"
+                        },
+                        {
+                            "clef": "football",
+                            "pond": "8"
+                        },
+                        {
+                            "clef": "tennis",
+                            "pond": "6"
+                        }
+                    ]
+            },
+            {
+                "name": "espionnage",
+                "motclef":
+                    [
+                        {
+                            "clef": "jazz",
+                            "pond": "2"
+                        },
+                        {
+                            "clef": "rap",
+                            "pond": "7"
+                        },
+                        {
+                            "clef": "rock",
+                            "pond": "4"
+                        }
+                    ]
+            },
+            {
+                "name": "sabotage",
+                "motclef":
+                    [
+                        {
+                            "clef": "baroque",
+                            "pond": "1"
+                        },
+                        {
+                            "clef": "graffiti",
+                            "pond": "10"
+                        }
+                    ]
+            },
+            {
+                "name": "subversion",
+                "motclef":
+                    [
+                        {
+                            "clef": "histoire",
+                            "pond": "10"
+                        },
+                        {
+                            "clef": "géographie",
+                            "pond": "4"
+                        }
+                    ]
+            },
+            {
+                "name": "crime organisé",
+                "motclef":
+                    [
+                        {
+                            "clef": "chien",
+                            "pond": "8"
+                        },
+                        {
+                            "clef": "chat",
+                            "pond": "4"
+                        }
+                    ]
+            }
+        ]
+    }
     jsonTab = json.dumps(tab)
     return jsonTab
 

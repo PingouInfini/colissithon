@@ -35,6 +35,7 @@ if __name__ == '__main__':
                     'X-XSRF-TOKEN': authResponse.cookies.get("XSRF-TOKEN")
                 }
 
+<<<<<<< HEAD
                 rawData = {
                     "rawDataName": "rawdataURL",
                     "rawDataType": "url",
@@ -47,6 +48,39 @@ if __name__ == '__main__':
                         "imageHit": 1,
                         "frequence": 1
                     }
+=======
+                # rawData = {
+                #     "rawDataName": "rawdataURL",
+                #     "rawDataType": "url",
+                #     "scoreDTO": {
+                #         "points": 15,
+                #         "listThemeMotclefHit": [
+                #             "test.test",
+                #             "test.test"
+                #         ],
+                #         "imageHit": 1,
+                #         "frequence": 1
+                #     }
+                # }
+
+                rawData = {
+                    "rawDataName": "prout",
+                    "rawDataCreationDate": "1569502656.9615667",
+                    "rawDataSubType": "url",
+                    "rawDataContent": str({
+                        "nom": "Macron",
+                        "prenom": "Emmanuel",
+                        "idBio": "4168"
+                    }),
+                    "rawDataSourceUri": "https://www.dna.fr/edition-de-strasbourg/2019/09/25/visite-de-macron-a-strasbourg-un-hommage-aux-heros-de-l-attentat",
+                    "scoreDTO": {
+                        "points": 10,
+                        "listThemeMotclefHit": [
+                            "TER.jazz", "ESP.rap"
+                        ],
+                        "imageHit": 0,
+                        "frequence": 0}
+>>>>>>> dockerisation
                 }
 
                 basic_post_response = session.post(url=url, json=rawData, headers=headersRawData)
