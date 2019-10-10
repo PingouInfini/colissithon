@@ -16,8 +16,8 @@ dictionary_url = INSIGHT_URL + "/api/dictionary/"
 
 
 # KAFKA
-kafka_endpoint = str(os.environ["KAFKA_IP"]) + ":" + str(os.environ["KAFKA_PORT"])
-# kafka_endpoint = "192.168.0.9" + ":" + "8092"
+# kafka_endpoint = str(os.environ["KAFKA_IP"]) + ":" + str(os.environ["KAFKA_PORT"])
+kafka_endpoint = "192.168.0.9" + ":" + "8092"
 
 
 
@@ -41,10 +41,10 @@ topic_from_croustibatch = "tweetToCrousti"
 
 
 # COLISSITHON
-colissithon_port = os.environ["COLISSITHON_PORT"]
-# colissithon_port = "9876"
+# colissithon_port = os.environ["COLISSITHON_PORT"]
+colissithon_port = "9876"
 
 # LOGS LEVEL
-debug_level = os.environ["DEBUG_LEVEL"]
-# debug_level = "INFO"
+# debug_level = os.environ["DEBUG_LEVEL"]
+debug_level = "INFO"
 

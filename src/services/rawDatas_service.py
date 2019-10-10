@@ -146,7 +146,9 @@ def create_rawDatas(rawData, session, header_with_token):
                 "points": urlsResults["points"],
                 "listThemeMotclefHit": urlsResults["listThemeMotclefHit"],
                 "imageHit": urlsResults["imageHit"],
-                "frequence": urlsResults["frequence"]
+                "frequence": urlsResults["frequence"],
+                "depthLevel": urlsResults["depthLevel"],
+                "idDictionary": urlsResults["idDictionary"]
             }})
     else:
         if not (rawData.rawDataSourceUri is None):
@@ -154,8 +156,6 @@ def create_rawDatas(rawData, session, header_with_token):
 
         if not (rawData.rawDataContent is None):
             data.update({"rawDataContent": rawData.rawDataContent})
-
-    ## TODO ajouter ligne ScoreDTO
 
     post_response = session.post(url=rawdata_url, json=data, headers=header_with_token)
 
@@ -172,9 +172,10 @@ def create_rawdata_and_link_to_entity(rawdata_to_create_id, entity_target, type_
     if post_response_create_rawdata.status_code == 201 or get_rawdata_response.status_code == 200:
         if get_rawdata_response:
             try:
-                entity_target = json.loads((get_rawdata_response.content).decode("utf-8"))[0]["externalId"]
-            except:
-                print("bonjour je bug")
+                if get_rawdata_response.content:
+                    entity_target = json.loads((get_rawdata_response.content).decode("utf-8"))[0]["externalId"]
+            except Exception as e:
+                print("rawdataURL pas encore cree", e)
         data = json.loads(post_response_create_rawdata.content)
         rawdata_created_external_id = data["externalId"]
         relation_service.bind_object_to_object(entity_target, rawdata_created_external_id, type_source, type_cible,
