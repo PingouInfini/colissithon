@@ -1,9 +1,9 @@
 version: '3'
 services:
     colissithon:
-        build:
-            context: ./context/
-        # image: reachhubcorp/colissithon:latest
+#        build:
+#            context: ./context/
+        image: reachhubcorp/colissithon:latest
         container_name: colissithon
         ports:
         - "9876:9876"

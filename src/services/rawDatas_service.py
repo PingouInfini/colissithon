@@ -22,8 +22,12 @@ def rawdatas_from_ggimage(json_picture, biographics_id, rawdata_url_name, sessio
     rawdata_from_picture.rawDataDataContentType = json_picture['extension']
     rawdata_from_picture.rawDataData = json_picture['image']
     rawdata_from_picture.rawDataContent = rawdata_url_name
-    create_rawdata_and_link_to_entity(rawdata_from_picture, rawdata_url_name, Entities.Rawdata, Entities.Rawdata,
+    ggimage_created_externalId = create_rawdata_and_link_to_entity(rawdata_from_picture, rawdata_url_name, Entities.Rawdata, Entities.Rawdata,
                                       session, header)
+    if ggimage_created_externalId is not None:
+        relation_service.bind_object_to_object(ggimage_created_externalId, biographics_id, Entities.Rawdata, Entities.Biographics,
+                                               session, header)
+
 
 
 def rawdatas_from_media(json_picture, biographics_id, session, header):
@@ -49,7 +53,7 @@ def rawdatas_from_url(msg, session, header):
     # rawdata_from_picture.rawDataContent
     bio_id = msg[0]
     create_rawdata_and_link_to_entity(rawdata_from_url, bio_id, Entities.Rawdata, Entities.Biographics, session, header)
-    find_unlinked_rawdata_from_gg_image(msg[1], msg[0], Entities.Rawdata, Entities.Rawdata, session, header)
+    # find_unlinked_rawdata_from_gg_image(msg[1], msg[0], Entities.Rawdata, Entities.Rawdata, session, header)
 
 
 def rawdatas_from_tweet(json_tweet, biographics_id, session, header):
